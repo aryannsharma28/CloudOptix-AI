@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudoptix-frontend
+  namespace: default
+  labels:
+    app: cloudoptix-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudoptix-frontend
+  template:
+    metadata:
+      labels:
+        app: cloudoptix-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: cloudoptix-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudoptix-frontend
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: cloudoptix-frontend

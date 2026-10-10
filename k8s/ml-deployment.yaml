@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudoptix-ml
+  namespace: default
+  labels:
+    app: cloudoptix-ml
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudoptix-ml
+  template:
+    metadata:
+      labels:
+        app: cloudoptix-ml
+    spec:
+      containers:
+        - name: ml-engine
+          image: cloudoptix-ml:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "256Mi"
+            limits:
+              cpu: "600m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudoptix-ml
+  namespace: default
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: cloudoptix-ml

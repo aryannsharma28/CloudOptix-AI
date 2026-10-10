@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: cloudoptix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cloudoptix_db
+      POSTGRES_USER: cloudoptix_admin
+      POSTGRES_PASSWORD: FinOpsSecurePassword2026!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cloudoptix-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudoptix_admin -d cloudoptix_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Python AI/ML Microservice
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: cloudoptix-ml-engine
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ENVIRONMENT=production
+    networks:
+      - cloudoptix-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 3. Node.js & Express API Gateway
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cloudoptix-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://cloudoptix_admin:FinOpsSecurePassword2026!@postgres:5432/cloudoptix_db
+      - ML_SERVICE_URL=http://ml-service:8000
+      - AWS_REGION=ap-south-1
+    networks:
+      - cloudoptix-net
+
+  # 4. React 18 + Nginx Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cloudoptix-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - cloudoptix-net
+
+networks:
+  cloudoptix-net:
+    driver: bridge
+
+volumes:
+  postgres_data:

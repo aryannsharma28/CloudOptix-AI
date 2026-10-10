@@ -1,0 +1,91 @@
+name: CloudOptix CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 1. Automated Testing & Code Quality
+  test:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Backend Dependencies & Run Tests
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm test
+
+      - name: Install Frontend Dependencies & Verify Build
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+  # 2. Container Build & Packaging
+  build-containers:
+    name: Build Multi-Tier Docker Containers
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend Container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: false
+          tags: cloudoptix-backend:latest
+
+      - name: Build Frontend Container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: false
+          tags: cloudoptix-frontend:latest
+
+      - name: Build ML Service Container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ml-service
+          push: false
+          tags: cloudoptix-ml:latest
+
+  # 3. Kubernetes Manifest Validation
+  k8s-validate:
+    name: Kubernetes Manifest Validation
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate K8s Manifests (Dry-Run)
+        run: |
+          kubectl apply --dry-run=client -f k8s/configmap.yaml
+          kubectl apply --dry-run=client -f k8s/secrets.yaml
+          kubectl apply --dry-run=client -f k8s/postgres-statefulset.yaml
+          kubectl apply --dry-run=client -f k8s/backend-deployment.yaml
+          kubectl apply --dry-run=client -f k8s/frontend-deployment.yaml
+          kubectl apply --dry-run=client -f k8s/ml-deployment.yaml
+          kubectl apply --dry-run=client -f k8s/hpa.yaml
+          kubectl apply --dry-run=client -f k8s/ingress.yaml

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudoptix-config
+  namespace: default
+  labels:
+    app.kubernetes.io/name: cloudoptix
+data:
+  NODE_ENV: "production"
+  PORT: "5000"
+  AWS_REGION: "ap-south-1"
+  ML_SERVICE_URL: "http://cloudoptix-ml:8000"
+  POSTGRES_DB: "cloudoptix_db"
+  POSTGRES_USER: "cloudoptix_admin"

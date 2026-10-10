@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cloudoptix-postgres
+  namespace: default
+  labels:
+    app: cloudoptix-postgres
+spec:
+  serviceName: "cloudoptix-postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudoptix-postgres
+  template:
+    metadata:
+      labels:
+        app: cloudoptix-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - configMapRef:
+                name: cloudoptix-config
+            - secretRef:
+                name: cloudoptix-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudoptix-postgres
+  namespace: default
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: cloudoptix-postgres
+  clusterIP: None

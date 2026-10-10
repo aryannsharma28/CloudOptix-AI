@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudoptix-backend
+  namespace: default
+  labels:
+    app: cloudoptix-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudoptix-backend
+  template:
+    metadata:
+      labels:
+        app: cloudoptix-backend
+    spec:
+      containers:
+        - name: backend
+          image: cloudoptix-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: cloudoptix-config
+            - secretRef:
+                name: cloudoptix-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudoptix-backend
+  namespace: default
+spec:
+  ports:
+    - port: 5000
+      targetPort: 5000
+  selector:
+    app: cloudoptix-backend

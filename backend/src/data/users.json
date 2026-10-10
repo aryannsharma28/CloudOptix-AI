@@ -1,0 +1,123 @@
+[
+  {
+    "id": "usr_819595d9a91e584c",
+    "authProvider": "PHONE_OTP",
+    "phoneNumber": "+919876543210",
+    "email": null,
+    "name": "Aryan FinOps",
+    "role": "Cloud Administrator",
+    "avatar": "https://ui-avatars.com/api/?name=Aryan%20FinOps&background=10b981&color=fff&bold=true",
+    "createdAt": "2026-09-30T11:44:26.455Z",
+    "lastLoginAt": "2026-09-30T11:44:26.455Z"
+  },
+  {
+    "id": "usr_1de8dc861c265333",
+    "authProvider": "GOOGLE",
+    "email": "aryan.cloud@gmail.com",
+    "googleId": "g_e35f29369cd8",
+    "phoneNumber": null,
+    "name": "Aryan AWS FinOps",
+    "role": "ADMIN",
+    "avatar": "https://ui-avatars.com/api/?name=Aryan%20AWS%20FinOps&background=0284c7&color=fff&bold=true",
+    "createdAt": "2026-09-30T11:44:26.486Z",
+    "lastLoginAt": "2026-10-10T04:15:22.692Z"
+  },
+  {
+    "id": "usr_c785a3bdddd70e0a",
+    "authProvider": "PHONE_OTP",
+    "phoneNumber": "+919811122233",
+    "email": null,
+    "name": "Test Engineer",
+    "role": "Cloud Administrator",
+    "avatar": "https://ui-avatars.com/api/?name=Test%20Engineer&background=10b981&color=fff&bold=true",
+    "createdAt": "2026-09-30T11:47:28.936Z",
+    "lastLoginAt": "2026-10-01T02:57:43.237Z"
+  },
+  {
+    "id": "usr_949689d69106d8e5",
+    "authProvider": "GOOGLE",
+    "email": "lead.finops@gmail.com",
+    "googleId": "g_ba090437c8e6",
+    "phoneNumber": null,
+    "name": "FinOps Lead",
+    "role": "FinOps Lead",
+    "avatar": "https://example.com/avatar.jpg",
+    "createdAt": "2026-09-30T11:47:28.939Z",
+    "lastLoginAt": "2026-10-01T02:57:43.244Z"
+  },
+  {
+    "id": "usr_cda969f6aeb554c1",
+    "authProvider": "PHONE_OTP",
+    "phoneNumber": "+919713037095",
+    "email": null,
+    "name": "AWS Cloud Engineer (7095)",
+    "role": "Cloud Administrator",
+    "avatar": "https://ui-avatars.com/api/?name=AWS%20Cloud%20Engineer%20(7095)&background=10b981&color=fff&bold=true",
+    "createdAt": "2026-09-30T18:03:11.734Z",
+    "lastLoginAt": "2026-10-01T02:12:02.422Z"
+  },
+  {
+    "id": "usr_admin_master_001",
+    "authProvider": "PASSWORD",
+    "email": "admin@cloudoptix.ai",
+    "passwordHash": "0603f154d8d214f8521c9b552a7c694fc193e1da7325a30ed322b24d76e27da7eb21f0a5b190ee5f2298f17df7902209b2ed72a7ca84c773053f0c851e222440",
+    "passwordSalt": "bcd624c9d9d4e514728324a9a7961e88",
+    "phoneNumber": null,
+    "name": "CloudOptix Admin",
+    "role": "ADMIN",
+    "avatar": "https://ui-avatars.com/api/?name=CloudOptix+Admin&background=0f172a&color=f97316&bold=true",
+    "createdAt": "2026-10-01T02:45:59.501Z",
+    "lastLoginAt": "2026-10-01T03:00:37.202Z"
+  },
+  {
+    "id": "usr_50ad506a905e5bca",
+    "authProvider": "PASSWORD",
+    "email": "developer@company.com",
+    "passwordHash": "93387ec1dab736c5a3205b866a8d792a5a3c28f1eadb50dcf5ebd0c2bdd1554d43ec9238ec1e7d5a2f79644b04bfdc0666cd14c11042756636f1dcb79b9d0470",
+    "passwordSalt": "e411c0c7e1d7929cf65d35ddc91ec459",
+    "phoneNumber": null,
+    "name": "Standard Dev",
+    "role": "USER",
+    "avatar": "https://ui-avatars.com/api/?name=Standard%20Dev&background=2563eb&color=fff&bold=true",
+    "createdAt": "2026-10-01T02:46:19.717Z",
+    "lastLoginAt": "2026-10-01T02:46:19.717Z"
+  },
+  {
+    "id": "usr_a500044cdafa6029",
+    "authProvider": "PASSWORD",
+    "email": "test.standard@cloudoptix.ai",
+    "passwordHash": "4a489a1934ecdcfa028b96cc4c2e156d754a37dd78c5805fe23c57bf72e574fb4b4b87e3fcdd7ae36956c7a42b711b3cc7d3041867044ad32526c5eef317dbe6",
+    "passwordSalt": "0aa05ba03ad79129f5518307aa40358a",
+    "phoneNumber": null,
+    "name": "Standard FinOps Analyst",
+    "role": "USER",
+    "avatar": "https://ui-avatars.com/api/?name=Standard%20FinOps%20Analyst&background=2563eb&color=fff&bold=true",
+    "createdAt": "2026-10-01T02:47:29.153Z",
+    "lastLoginAt": "2026-10-01T02:47:29.153Z"
+  },
+  {
+    "id": "usr_79fb95b79fa496c5",
+    "authProvider": "PASSWORD",
+    "email": "test.standard_1790823463270@cloudoptix.ai",
+    "passwordHash": "01b2a3155f7176d89bcaa4a646eb06bfefe80444b36bafa2705caa6f7f0f687f591d86d6443c7a59e5e944e5c1b6ef5ffe6ec2bc7d8def5a29a1617f6651da9b",
+    "passwordSalt": "9414def1f47bc378c8c82e451c3158e3",
+    "phoneNumber": null,
+    "name": "Standard FinOps Analyst",
+    "role": "USER",
+    "avatar": "https://ui-avatars.com/api/?name=Standard%20FinOps%20Analyst&background=2563eb&color=fff&bold=true",
+    "createdAt": "2026-10-01T02:57:43.273Z",
+    "lastLoginAt": "2026-10-01T02:57:43.273Z"
+  },
+  {
+    "id": "usr_8e5555de5f65fa25",
+    "authProvider": "GOOGLE",
+    "email": "regular.employee@company.com",
+    "googleId": "g_1232cd1cfbc8",
+    "phoneNumber": null,
+    "name": "Regular Employee",
+    "role": "FinOps Lead",
+    "avatar": "https://ui-avatars.com/api/?name=Regular%20Employee&background=0284c7&color=fff&bold=true",
+    "createdAt": "2026-10-01T03:10:20.689Z",
+    "lastLoginAt": "2026-10-01T03:10:20.689Z"
+  }
+]
