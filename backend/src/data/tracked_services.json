@@ -1,5 +1,23 @@
 [
   {
+    "id": "i-0fa912f047f3dc32d",
+    "name": "local2",
+    "type": "EC2",
+    "service": "Amazon EC2",
+    "instanceType": "t3.micro",
+    "region": "ap-south-1",
+    "state": "stopped",
+    "startedAt": "2026-10-12T07:13:25.000Z",
+    "cpuUtilization": 0,
+    "status": "STOPPED",
+    "costPerMonth": 880,
+    "awsProvisioned": true,
+    "awsStatus": "Active on AWS Console",
+    "awsConsoleLink": "https://ap-south-1.console.aws.amazon.com/ec2/home?region=ap-south-1#InstanceDetails:instanceId=i-0fa912f047f3dc32d",
+    "awsError": null,
+    "stoppedAt": "2026-10-12T22:31:21.693Z"
+  },
+  {
     "id": "i-0345d6b9f05f47e97",
     "name": "ctyag232",
     "type": "EC2",
@@ -10,11 +28,12 @@
     "startedAt": "2026-10-09T13:58:28.000Z",
     "cpuUtilization": 28.5,
     "status": "OPTIMAL",
-    "costPerMonth": 880,
+    "costPerMonth": 546,
     "awsProvisioned": true,
     "awsStatus": "Active on AWS Console",
     "awsConsoleLink": "https://ap-south-1.console.aws.amazon.com/ec2/home?region=ap-south-1#InstanceDetails:instanceId=i-0345d6b9f05f47e97",
-    "awsError": null
+    "awsError": null,
+    "savingsPlan": true
   },
   {
     "id": "i-030bea8637106b9da",

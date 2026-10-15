@@ -186,9 +186,9 @@
   gap: 8px;
   padding: 9px 18px;
   border-radius: var(--radius-sm);
-  background: #f8fafc;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  color: var(--text-secondary, #475569);
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 600;
@@ -198,9 +198,9 @@
 }
 
 .nav-tab:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #cbd5e1;
+  background: var(--bg-subtle-hover, #f1f5f9);
+  color: var(--text-primary, #0f172a);
+  border-color: var(--border-hover, #cbd5e1);
 }
 
 .nav-tab.active {
@@ -208,6 +208,20 @@
   color: #ffffff;
   border-color: #232f3e;
   box-shadow: 0 2px 8px rgba(35, 47, 62, 0.25);
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: var(--aws-orange);
+  color: #ffffff;
+  margin-left: 6px;
+  line-height: 1.2;
 }
 
 .tab-pill {
@@ -1138,6 +1152,150 @@
   margin-bottom: 6px;
 }
 
+/* Forecast Bill & Projected AWS Invoice */
+.forecast-bill-card {
+  background: #ffffff;
+  padding: 28px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.bill-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.forecast-bill-table {
+  width: 100%;
+  margin-top: 18px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.forecast-bill-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.forecast-bill-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.875rem;
+}
+
+.bill-service-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bill-service-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.bill-totals-box {
+  margin-top: 20px;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bill-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.bill-total-row.grand-total {
+  padding-top: 12px;
+  border-top: 2px dashed #cbd5e1;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bill-grand-amount {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  color: #d97706;
+}
+
+.bill-savings-banner {
+  margin-top: 20px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.14) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.bill-savings-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.bill-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+[data-theme="dark"] .forecast-bill-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+}
+
+[data-theme="dark"] .forecast-bill-table th,
+[data-theme="dark"] .bill-totals-box {
+  background: #181818 !important;
+  border-color: #282828 !important;
+}
+
+[data-theme="dark"] .bill-service-icon {
+  background: #242424 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .bill-total-row {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .bill-total-row.grand-total {
+  border-top-color: #333333 !important;
+  color: #ffffff !important;
+}
+
 /* Kubernetes & HPA (Full Width) */
 .k8s-container {
   width: 100%;
@@ -1421,22 +1579,37 @@
   color: var(--text-secondary);
 }
 
-[data-theme="dark"] .nav-tabs-wrapper {
+[data-theme="dark"] .nav-tabs-wrapper,
+.dark .nav-tabs-wrapper {
   border-color: var(--border-subtle);
 }
 
-[data-theme="dark"] .nav-tab {
-  color: var(--text-secondary);
+[data-theme="dark"] .nav-tab,
+.dark .nav-tab {
+  background: #141414 !important;
+  border: 1px solid #282828 !important;
+  color: #d4d4d4 !important;
 }
 
-[data-theme="dark"] .nav-tab:hover {
-  color: var(--text-primary);
-  background: var(--bg-subtle-hover);
+[data-theme="dark"] .nav-tab:hover,
+.dark .nav-tab:hover {
+  background: #202020 !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
 }
 
-[data-theme="dark"] .nav-tab.active {
-  color: var(--aws-orange);
-  border-bottom-color: var(--aws-orange);
+[data-theme="dark"] .nav-tab.active,
+.dark .nav-tab.active {
+  background: #222222 !important;
+  border: 1px solid #ff9900 !important;
+  color: #ff9900 !important;
+  box-shadow: 0 0 14px rgba(255, 153, 0, 0.22) !important;
+}
+
+[data-theme="dark"] .tab-badge,
+.dark .tab-badge {
+  background: #ff9900 !important;
+  color: #000000 !important;
 }
 
 [data-theme="dark"] .fleet-table {
@@ -1504,9 +1677,9 @@
 }
 
 [data-theme="dark"] .bg-green-subtle { background: rgba(16, 185, 129, 0.15); }
-[data-theme="dark"] .bg-cyan-subtle { background: rgba(59, 130, 246, 0.15); }
+[data-theme="dark"] .bg-cyan-subtle { background: rgba(255, 255, 255, 0.08); }
 [data-theme="dark"] .bg-amber-subtle { background: rgba(245, 158, 11, 0.15); }
 [data-theme="dark"] .bg-rose-subtle { background: rgba(239, 68, 68, 0.15); }
-[data-theme="dark"] .bg-purple-subtle { background: rgba(139, 92, 246, 0.15); }
+[data-theme="dark"] .bg-purple-subtle { background: rgba(255, 255, 255, 0.08); }
 
 

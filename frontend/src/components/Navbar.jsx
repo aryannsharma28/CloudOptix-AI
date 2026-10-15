@@ -7,7 +7,6 @@ import {
   Layers,
   Sparkles,
   TrendingUp,
-  Cpu,
   ShieldCheck,
   RotateCcw,
   Activity,
@@ -45,7 +44,7 @@ export const Navbar = () => {
   } = useCloud();
 
   const { user, isAuthenticated, isAdmin, setIsAuthModalOpen, logout } = useAuth();
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme, isDark } = useTheme();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
@@ -106,9 +105,15 @@ export const Navbar = () => {
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              background: mode === "LIVE_AWS" ? "#ecfdf5" : "var(--aws-orange)",
-              color: mode === "LIVE_AWS" ? "#065f46" : "#ffffff",
-              border: mode === "LIVE_AWS" ? "1px solid #a7f3d0" : "none",
+              background: mode === "LIVE_AWS" 
+                ? (isDark ? "rgba(16, 185, 129, 0.15)" : "#ecfdf5") 
+                : "var(--aws-orange)",
+              color: mode === "LIVE_AWS" 
+                ? (isDark ? "#34d399" : "#065f46") 
+                : "#ffffff",
+              border: mode === "LIVE_AWS" 
+                ? (isDark ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid #a7f3d0") 
+                : "none",
               fontWeight: "600"
             }}
             title="Configure AWS IAM credentials or Role"
@@ -122,7 +127,7 @@ export const Navbar = () => {
             {mode === "LIVE_AWS" ? (
               <>
                 <span className="pulse-dot text-neon-green"></span>
-                <span className="font-semibold" style={{ color: "#059669" }}>
+                <span className="font-semibold" style={{ color: isDark ? "#34d399" : "#059669" }}>
                   AWS LIVE API
                 </span>
               </>
@@ -473,14 +478,6 @@ export const Navbar = () => {
           >
             <TrendingUp size={16} />
             <span>AI Spend Forecast</span>
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "k8s" ? "active" : ""}`}
-            onClick={() => setActiveTab("k8s")}
-          >
-            <Cpu size={16} />
-            <span>Kubernetes & HPA</span>
           </button>
 
           <button

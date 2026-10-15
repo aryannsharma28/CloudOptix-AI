@@ -34,7 +34,57 @@ exports.verifyPhoneOtp = async (req, res) => {
     }
 
     const result = authService.verifyPhoneOtp(phoneNumber, otp, name);
+    // Auto-connect AWS credentials if configured
+    try {
+      if (awsCollectorService.getMode() !== "LIVE_AWS") {
+        awsCollectorService._detectAndInitCredentials();
+      }
+    } catch {}
+
+    res.json({
+      ...result,
+      awsMode: awsCollectorService.getMode(),
+      awsConnected: awsCollectorService.getMode() === "LIVE_AWS"
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+};
+
+exports.sendEmailOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email address is required." });
+    }
+
+    const result = authService.sendEmailOtp(email);
     res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+};
+
+exports.verifyEmailOtp = async (req, res) => {
+  try {
+    const { email, otp, name } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, error: "Email address and 6-digit OTP code are required." });
+    }
+
+    const result = authService.verifyEmailOtp(email, otp, name);
+    // Auto-connect AWS credentials if configured
+    try {
+      if (awsCollectorService.getMode() !== "LIVE_AWS") {
+        awsCollectorService._detectAndInitCredentials();
+      }
+    } catch {}
+
+    res.json({
+      ...result,
+      awsMode: awsCollectorService.getMode(),
+      awsConnected: awsCollectorService.getMode() === "LIVE_AWS"
+    });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
   }
@@ -48,7 +98,18 @@ exports.googleSignIn = async (req, res) => {
     }
 
     const result = authService.googleSignIn({ email, name, picture, googleId });
-    res.json(result);
+    // Auto-connect AWS credentials if configured
+    try {
+      if (awsCollectorService.getMode() !== "LIVE_AWS") {
+        awsCollectorService._detectAndInitCredentials();
+      }
+    } catch {}
+
+    res.json({
+      ...result,
+      awsMode: awsCollectorService.getMode(),
+      awsConnected: awsCollectorService.getMode() === "LIVE_AWS"
+    });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
   }

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useCloud } from "../context/CloudContext";
+import { useTheme } from "../context/ThemeContext";
 import {
   Cloud,
   Key,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export const ConnectAwsModal = () => {
+  const { isDark } = useTheme();
   const {
     isConnectModalOpen,
     setIsConnectModalOpen,
@@ -105,7 +107,7 @@ export const ConnectAwsModal = () => {
             justifyContent: "space-between",
             alignItems: "center",
             paddingBottom: "16px",
-            borderBottom: "1px solid var(--border-light)",
+            borderBottom: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
             marginBottom: "20px"
           }}
         >
@@ -125,10 +127,10 @@ export const ConnectAwsModal = () => {
               <Cloud size={22} />
             </div>
             <div>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "var(--text-main)", margin: 0 }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: isDark ? "#ffffff" : "var(--text-main)", margin: 0 }}>
                 Connect AWS Account
               </h2>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "2px 0 0 0" }}>
+              <p style={{ fontSize: "0.85rem", color: isDark ? "#a3a3a3" : "var(--text-muted)", margin: "2px 0 0 0" }}>
                 Ingest live CloudWatch metrics, EC2 fleet inventory & Cost Explorer telemetry
               </p>
             </div>
@@ -139,7 +141,7 @@ export const ConnectAwsModal = () => {
             style={{
               background: "transparent",
               border: "none",
-              color: "var(--text-muted)",
+              color: isDark ? "#a3a3a3" : "var(--text-muted)",
               cursor: "pointer",
               padding: "6px",
               borderRadius: "6px",
@@ -158,8 +160,14 @@ export const ConnectAwsModal = () => {
           style={{
             padding: "12px 16px",
             borderRadius: "8px",
-            backgroundColor: mode === "LIVE_AWS" ? "#ecfdf5" : "#f8fafc",
-            border: `1px solid ${mode === "LIVE_AWS" ? "#a7f3d0" : "#e2e8f0"}`,
+            backgroundColor: mode === "LIVE_AWS" 
+              ? (isDark ? "rgba(16, 185, 129, 0.15)" : "#ecfdf5") 
+              : (isDark ? "#141414" : "#f8fafc"),
+            border: `1px solid ${
+              mode === "LIVE_AWS" 
+                ? (isDark ? "rgba(16, 185, 129, 0.4)" : "#a7f3d0") 
+                : (isDark ? "#282828" : "#e2e8f0")
+            }`,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -168,15 +176,15 @@ export const ConnectAwsModal = () => {
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {mode === "LIVE_AWS" ? (
-              <CheckCircle2 size={20} style={{ color: "#059669" }} />
+              <CheckCircle2 size={20} style={{ color: isDark ? "#34d399" : "#059669" }} />
             ) : (
-              <Zap size={20} style={{ color: "#94a3b8" }} />
+              <Zap size={20} style={{ color: isDark ? "#737373" : "#94a3b8" }} />
             )}
             <div>
-              <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-main)" }}>
+              <div style={{ fontSize: "0.85rem", fontWeight: "700", color: isDark ? "#ffffff" : "#0f172a" }}>
                 {mode === "LIVE_AWS" ? "Connected to Live AWS Cloud" : "AWS Disconnected / Not Configured"}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+              <div style={{ fontSize: "0.75rem", color: isDark ? "#a3a3a3" : "#64748b" }}>
                 {mode === "LIVE_AWS"
                   ? `Active Connection • Region: ${account?.primaryRegion || region || "ap-south-1"}`
                   : "No active AWS telemetry connection"}
@@ -192,17 +200,18 @@ export const ConnectAwsModal = () => {
               style={{
                 padding: "6px 14px",
                 fontSize: "0.8rem",
-                color: "#dc2626",
+                color: isDark ? "#f87171" : "#dc2626",
                 fontWeight: "700",
-                backgroundColor: "#fef2f2",
-                border: "1px solid #fecaca",
-                cursor: "pointer"
+                backgroundColor: isDark ? "rgba(239, 68, 68, 0.15)" : "#fef2f2",
+                border: `1px solid ${isDark ? "rgba(239, 68, 68, 0.35)" : "#fecaca"}`,
+                cursor: "pointer",
+                borderRadius: "6px"
               }}
             >
               Disconnect
             </button>
           ) : (
-            <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "600" }}>
+            <span style={{ fontSize: "0.75rem", color: isDark ? "#737373" : "#64748b", fontWeight: "600" }}>
               Offline
             </span>
           )}
@@ -213,7 +222,7 @@ export const ConnectAwsModal = () => {
           style={{
             display: "flex",
             gap: "8px",
-            borderBottom: "1px solid var(--border-light)",
+            borderBottom: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
             marginBottom: "20px",
             paddingBottom: "8px"
           }}
@@ -223,15 +232,20 @@ export const ConnectAwsModal = () => {
             style={{
               padding: "8px 16px",
               borderRadius: "6px",
-              border: "none",
+              border: `1px solid ${tab === "keys" ? (isDark ? "#ffffff" : "transparent") : (isDark ? "#383838" : "#cbd5e1")}`,
               fontSize: "0.85rem",
               fontWeight: "600",
               cursor: "pointer",
-              background: tab === "keys" ? "var(--aws-navy)" : "#f1f5f9",
-              color: tab === "keys" ? "#ffffff" : "var(--text-main)",
+              background: tab === "keys" 
+                ? (isDark ? "#262626" : "var(--aws-navy)") 
+                : (isDark ? "#141414" : "#f1f5f9"),
+              color: tab === "keys" 
+                ? "#ffffff" 
+                : (isDark ? "#d4d4d4" : "#475569"),
               display: "flex",
               alignItems: "center",
-              gap: "6px"
+              gap: "6px",
+              transition: "all 0.2s ease"
             }}
           >
             <Key size={14} />
@@ -243,15 +257,20 @@ export const ConnectAwsModal = () => {
             style={{
               padding: "8px 16px",
               borderRadius: "6px",
-              border: "none",
+              border: `1px solid ${tab === "role" ? (isDark ? "#ffffff" : "transparent") : (isDark ? "#383838" : "#cbd5e1")}`,
               fontSize: "0.85rem",
               fontWeight: "600",
               cursor: "pointer",
-              background: tab === "role" ? "var(--aws-navy)" : "#f1f5f9",
-              color: tab === "role" ? "#ffffff" : "var(--text-main)",
+              background: tab === "role" 
+                ? (isDark ? "#262626" : "var(--aws-navy)") 
+                : (isDark ? "#141414" : "#f1f5f9"),
+              color: tab === "role" 
+                ? "#ffffff" 
+                : (isDark ? "#d4d4d4" : "#475569"),
               display: "flex",
               alignItems: "center",
-              gap: "6px"
+              gap: "6px",
+              transition: "all 0.2s ease"
             }}
           >
             <ShieldCheck size={14} />
@@ -263,15 +282,20 @@ export const ConnectAwsModal = () => {
             style={{
               padding: "8px 16px",
               borderRadius: "6px",
-              border: "none",
+              border: `1px solid ${tab === "policy" ? (isDark ? "#ffffff" : "transparent") : (isDark ? "#383838" : "#cbd5e1")}`,
               fontSize: "0.85rem",
               fontWeight: "600",
               cursor: "pointer",
-              background: tab === "policy" ? "var(--aws-navy)" : "#f1f5f9",
-              color: tab === "policy" ? "#ffffff" : "var(--text-main)",
+              background: tab === "policy" 
+                ? (isDark ? "#262626" : "var(--aws-navy)") 
+                : (isDark ? "#141414" : "#f1f5f9"),
+              color: tab === "policy" 
+                ? "#ffffff" 
+                : (isDark ? "#d4d4d4" : "#475569"),
               display: "flex",
               alignItems: "center",
-              gap: "6px"
+              gap: "6px",
+              transition: "all 0.2s ease"
             }}
           >
             <FileText size={14} />
@@ -302,7 +326,7 @@ export const ConnectAwsModal = () => {
 
         {/* Region Selector (Shared across tabs) */}
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-main)", marginBottom: "6px" }}>
+          <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: isDark ? "#ffffff" : "var(--text-main)", marginBottom: "6px" }}>
             AWS Primary Region
           </label>
           <select
@@ -312,9 +336,9 @@ export const ConnectAwsModal = () => {
               width: "100%",
               padding: "10px 12px",
               borderRadius: "6px",
-              border: "1px solid var(--border-light)",
-              backgroundColor: "#ffffff",
-              color: "var(--text-main)",
+              border: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
+              backgroundColor: isDark ? "#181818" : "#ffffff",
+              color: isDark ? "#ededed" : "var(--text-main)",
               fontSize: "0.9rem"
             }}
           >
@@ -330,7 +354,7 @@ export const ConnectAwsModal = () => {
         {tab === "keys" && (
           <form onSubmit={handleConnectKeys}>
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-main)", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: isDark ? "#ffffff" : "var(--text-main)", marginBottom: "6px" }}>
                 AWS Access Key ID
               </label>
               <input
@@ -342,9 +366,9 @@ export const ConnectAwsModal = () => {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: "6px",
-                  border: "1px solid var(--border-light)",
-                  backgroundColor: "#ffffff",
-                  color: "var(--text-main)",
+                  border: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
+                  backgroundColor: isDark ? "#181818" : "#ffffff",
+                  color: isDark ? "#ededed" : "var(--text-main)",
                   fontSize: "0.9rem",
                   fontFamily: "monospace"
                 }}
@@ -352,7 +376,7 @@ export const ConnectAwsModal = () => {
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-main)", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: isDark ? "#ffffff" : "var(--text-main)", marginBottom: "6px" }}>
                 AWS Secret Access Key
               </label>
               <div style={{ position: "relative" }}>
@@ -365,9 +389,9 @@ export const ConnectAwsModal = () => {
                     width: "100%",
                     padding: "10px 40px 10px 12px",
                     borderRadius: "6px",
-                    border: "1px solid var(--border-light)",
-                    backgroundColor: "#ffffff",
-                    color: "var(--text-main)",
+                    border: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
+                    backgroundColor: isDark ? "#181818" : "#ffffff",
+                    color: isDark ? "#ededed" : "var(--text-main)",
                     fontSize: "0.9rem",
                     fontFamily: "monospace"
                   }}
@@ -383,7 +407,7 @@ export const ConnectAwsModal = () => {
                     background: "transparent",
                     border: "none",
                     cursor: "pointer",
-                    color: "var(--text-muted)"
+                    color: isDark ? "#a3a3a3" : "var(--text-muted)"
                   }}
                 >
                   {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -396,21 +420,21 @@ export const ConnectAwsModal = () => {
               style={{
                 padding: "12px",
                 borderRadius: "6px",
-                backgroundColor: "#f8fafc",
-                border: "1px solid #e2e8f0",
+                backgroundColor: isDark ? "#141414" : "#f8fafc",
+                border: `1px solid ${isDark ? "#282828" : "#e2e8f0"}`,
                 fontSize: "0.8rem",
-                color: "var(--text-muted)",
+                color: isDark ? "#a3a3a3" : "var(--text-muted)",
                 display: "flex",
                 gap: "8px",
                 marginBottom: "20px"
               }}
             >
-              <Lock size={16} style={{ color: "#059669", flexShrink: 0, marginTop: "2px" }} />
+              <Lock size={16} style={{ color: "#10b981", flexShrink: 0, marginTop: "2px" }} />
               <div>
-                <strong>FinOps Principle: Read-Only Privilege.</strong> CloudOptix requires only{" "}
-                <code style={{ background: "#e2e8f0", padding: "1px 4px", borderRadius: "3px" }}>ec2:Describe*</code>,{" "}
-                <code style={{ background: "#e2e8f0", padding: "1px 4px", borderRadius: "3px" }}>cloudwatch:GetMetricData</code>, and{" "}
-                <code style={{ background: "#e2e8f0", padding: "1px 4px", borderRadius: "3px" }}>ce:GetCostAndUsage</code>. It cannot destroy or alter any infrastructure.
+                <strong style={{ color: isDark ? "#ffffff" : "var(--text-main)" }}>FinOps Principle: Read-Only Privilege.</strong> CloudOptix requires only{" "}
+                <code style={{ background: isDark ? "#242424" : "#e2e8f0", color: isDark ? "#ededed" : "inherit", padding: "1px 4px", borderRadius: "3px" }}>ec2:Describe*</code>,{" "}
+                <code style={{ background: isDark ? "#242424" : "#e2e8f0", color: isDark ? "#ededed" : "inherit", padding: "1px 4px", borderRadius: "3px" }}>cloudwatch:GetMetricData</code>, and{" "}
+                <code style={{ background: isDark ? "#242424" : "#e2e8f0", color: isDark ? "#ededed" : "inherit", padding: "1px 4px", borderRadius: "3px" }}>ce:GetCostAndUsage</code>. It cannot destroy or alter any infrastructure.
               </div>
             </div>
 
@@ -448,7 +472,7 @@ export const ConnectAwsModal = () => {
         {tab === "role" && (
           <form onSubmit={handleConnectRole}>
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-main)", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: isDark ? "#ffffff" : "var(--text-main)", marginBottom: "6px" }}>
                 Target IAM Role ARN
               </label>
               <input
@@ -460,9 +484,9 @@ export const ConnectAwsModal = () => {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: "6px",
-                  border: "1px solid var(--border-light)",
-                  backgroundColor: "#ffffff",
-                  color: "var(--text-main)",
+                  border: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
+                  backgroundColor: isDark ? "#181818" : "#ffffff",
+                  color: isDark ? "#ededed" : "var(--text-main)",
                   fontSize: "0.9rem",
                   fontFamily: "monospace"
                 }}
@@ -470,7 +494,7 @@ export const ConnectAwsModal = () => {
             </div>
 
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-main)", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: isDark ? "#ffffff" : "var(--text-main)", marginBottom: "6px" }}>
                 STS External ID (for confused-deputy protection)
               </label>
               <input
@@ -481,9 +505,9 @@ export const ConnectAwsModal = () => {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: "6px",
-                  border: "1px solid var(--border-light)",
-                  backgroundColor: "#f8fafc",
-                  color: "var(--text-main)",
+                  border: `1px solid ${isDark ? "#282828" : "var(--border-light)"}`,
+                  backgroundColor: isDark ? "#141414" : "#f8fafc",
+                  color: isDark ? "#ededed" : "var(--text-main)",
                   fontSize: "0.9rem",
                   fontFamily: "monospace"
                 }}
@@ -494,14 +518,14 @@ export const ConnectAwsModal = () => {
               style={{
                 padding: "12px",
                 borderRadius: "6px",
-                backgroundColor: "#f8fafc",
-                border: "1px solid #e2e8f0",
+                backgroundColor: isDark ? "#141414" : "#f8fafc",
+                border: `1px solid ${isDark ? "#282828" : "#e2e8f0"}`,
                 fontSize: "0.8rem",
-                color: "var(--text-muted)",
+                color: isDark ? "#a3a3a3" : "var(--text-muted)",
                 marginBottom: "20px"
               }}
             >
-              <div style={{ fontWeight: "600", color: "var(--text-main)", marginBottom: "4px" }}>
+              <div style={{ fontWeight: "600", color: isDark ? "#ffffff" : "var(--text-main)", marginBottom: "4px" }}>
                 AWS Best Practice: Cross-Account STS AssumeRole
               </div>
               <p style={{ margin: 0 }}>
@@ -544,10 +568,10 @@ export const ConnectAwsModal = () => {
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
               <div>
-                <h3 style={{ fontSize: "0.95rem", fontWeight: "700", margin: "0 0 4px 0", color: "var(--text-main)" }}>
+                <h3 style={{ fontSize: "0.95rem", fontWeight: "700", margin: "0 0 4px 0", color: isDark ? "#ffffff" : "var(--text-main)" }}>
                   AWS IAM Policy (JSON) — CloudWatch + Cost Management + EC2 + S3
                 </h3>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>
+                <p style={{ fontSize: "0.8rem", color: isDark ? "#a3a3a3" : "var(--text-muted)", margin: 0 }}>
                   Includes permissions for live CloudWatch telemetry, AWS Cost Explorer (ce:*), EC2 control, and S3 monitoring.
                 </p>
               </div>
@@ -653,9 +677,15 @@ export const ConnectAwsModal = () => {
                 style={{
                   padding: "6px 12px",
                   borderRadius: "6px",
-                  border: policyType === "compact" ? "2px solid #0284c7" : "1px solid #cbd5e1",
-                  background: policyType === "compact" ? "#f0f9ff" : "#ffffff",
-                  color: policyType === "compact" ? "#0369a1" : "#475569",
+                  border: policyType === "compact" 
+                    ? (isDark ? "2px solid #ffffff" : "2px solid #0284c7") 
+                    : (isDark ? "1px solid #282828" : "1px solid #cbd5e1"),
+                  background: policyType === "compact" 
+                    ? (isDark ? "#262626" : "#f0f9ff") 
+                    : (isDark ? "#141414" : "#ffffff"),
+                  color: policyType === "compact" 
+                    ? (isDark ? "#ffffff" : "#0369a1") 
+                    : (isDark ? "#a3a3a3" : "#475569"),
                   fontWeight: "600",
                   fontSize: "0.8rem",
                   cursor: "pointer"
@@ -669,9 +699,15 @@ export const ConnectAwsModal = () => {
                 style={{
                   padding: "6px 12px",
                   borderRadius: "6px",
-                  border: policyType === "granular" ? "2px solid #0284c7" : "1px solid #cbd5e1",
-                  background: policyType === "granular" ? "#f0f9ff" : "#ffffff",
-                  color: policyType === "granular" ? "#0369a1" : "#475569",
+                  border: policyType === "granular" 
+                    ? (isDark ? "2px solid #ffffff" : "2px solid #0284c7") 
+                    : (isDark ? "1px solid #282828" : "1px solid #cbd5e1"),
+                  background: policyType === "granular" 
+                    ? (isDark ? "#262626" : "#f0f9ff") 
+                    : (isDark ? "#141414" : "#ffffff"),
+                  color: policyType === "granular" 
+                    ? (isDark ? "#ffffff" : "#0369a1") 
+                    : (isDark ? "#a3a3a3" : "#475569"),
                   fontWeight: "600",
                   fontSize: "0.8rem",
                   cursor: "pointer"
@@ -684,12 +720,12 @@ export const ConnectAwsModal = () => {
             <div
               style={{
                 position: "relative",
-                backgroundColor: "#0f172a",
+                backgroundColor: isDark ? "#000000" : "#0f172a",
                 borderRadius: "8px",
                 padding: "14px",
                 maxHeight: "260px",
                 overflowY: "auto",
-                border: "1px solid #334155",
+                border: isDark ? "1px solid #282828" : "1px solid #334155",
                 marginBottom: "16px"
               }}
             >
@@ -698,7 +734,7 @@ export const ConnectAwsModal = () => {
                   margin: 0,
                   fontSize: "0.78rem",
                   fontFamily: "monospace",
-                  color: "#38bdf8",
+                  color: isDark ? "#e2e8f0" : "#38bdf8",
                   whiteSpace: "pre-wrap",
                   lineHeight: "1.4"
                 }}
@@ -786,22 +822,22 @@ export const ConnectAwsModal = () => {
               style={{
                 padding: "10px 14px",
                 borderRadius: "6px",
-                backgroundColor: "#f8fafc",
-                border: "1px solid #e2e8f0",
+                backgroundColor: isDark ? "#141414" : "#f8fafc",
+                border: `1px solid ${isDark ? "#282828" : "#e2e8f0"}`,
                 fontSize: "0.8rem",
-                color: "var(--text-muted)",
+                color: isDark ? "#a3a3a3" : "var(--text-muted)",
                 marginBottom: "16px"
               }}
             >
-              <strong style={{ color: "var(--text-main)", display: "block", marginBottom: "4px" }}>
+              <strong style={{ color: isDark ? "#ffffff" : "var(--text-main)", display: "block", marginBottom: "4px" }}>
                 How to apply in AWS Console:
               </strong>
-              <ol style={{ margin: 0, paddingLeft: "18px", lineHeight: "1.5" }}>
-                <li>Open <strong>AWS Management Console</strong> &rarr; <strong>IAM</strong> &rarr; <strong>Users</strong>.</li>
-                <li>Select user <strong>cloudoptix-finops-user</strong>.</li>
-                <li>Under <strong>Permissions</strong> tab, click <strong>Add permissions</strong> &rarr; <strong>Create inline policy</strong>.</li>
-                <li>Switch to the <strong>JSON</strong> tab, paste the code above, and click <strong>Next</strong>.</li>
-                <li>Name the policy <strong>CloudOptixFullManagement</strong> and click <strong>Create policy</strong>.</li>
+              <ol style={{ margin: 0, paddingLeft: "18px", lineHeight: "1.5", color: isDark ? "#a3a3a3" : "inherit" }}>
+                <li>Open <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>AWS Management Console</strong> &rarr; <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>IAM</strong> &rarr; <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>Users</strong>.</li>
+                <li>Select user <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>cloudoptix-finops-user</strong>.</li>
+                <li>Under <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>Permissions</strong> tab, click <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>Add permissions</strong> &rarr; <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>Create inline policy</strong>.</li>
+                <li>Switch to the <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>JSON</strong> tab, paste the code above, and click <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>Next</strong>.</li>
+                <li>Name the policy <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>CloudOptixFullManagement</strong> and click <strong style={{ color: isDark ? "#ffffff" : "inherit" }}>Create policy</strong>.</li>
               </ol>
             </div>
 

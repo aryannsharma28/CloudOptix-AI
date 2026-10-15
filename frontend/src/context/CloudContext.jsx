@@ -5,7 +5,8 @@ const CloudContext = createContext();
 export const CloudProvider = ({ children }) => {
   const [activeTab, setActiveTabState] = useState(() => {
     try {
-      return localStorage.getItem("cloudoptix_active_tab") || "overview";
+      const saved = localStorage.getItem("cloudoptix_active_tab");
+      return saved === "k8s" ? "overview" : (saved || "overview");
     } catch {
       return "overview";
     }
@@ -91,12 +92,34 @@ export const CloudProvider = ({ children }) => {
         fetch(`${API_BASE}/k8s`).then((r) => r.json()).catch(() => ({ success: false }))
       ]);
 
-      if (sumRes.success) {
-        setSummary(sumRes.data);
+      if (sumRes.success && sumRes.data) {
+        const enrichedSummary = { ...sumRes.data };
+        if (resRes.success && Array.isArray(resRes.data) && resRes.data.length > 0) {
+          const nonTerminated = resRes.data.filter((r) => r.state !== "terminated" && r.state !== "deleted");
+          if (!enrichedSummary.activeResources || enrichedSummary.activeResources === 0) {
+            enrichedSummary.activeResources = nonTerminated.length;
+          }
+          const calcMonthly = Math.round(nonTerminated.reduce((sum, r) => sum + (r.projectedMonthCost || r.costPerMonth || 0), 0));
+          if (!enrichedSummary.monthlyCost || enrichedSummary.monthlyCost === 0) {
+            enrichedSummary.monthlyCost = calcMonthly;
+          }
+          if (!enrichedSummary.estimatedNextMonth || enrichedSummary.estimatedNextMonth === 0) {
+            enrichedSummary.estimatedNextMonth = Math.round(calcMonthly * 1.149);
+          }
+        }
+        if (recRes.success && Array.isArray(recRes.data) && recRes.data.length > 0) {
+          const calcSavings = recRes.data
+            .filter((r) => !r.applied && !r.closed)
+            .reduce((sum, r) => sum + (r.monthlySavings || 0), 0);
+          if (!enrichedSummary.potentialSavings || enrichedSummary.potentialSavings === 0) {
+            enrichedSummary.potentialSavings = calcSavings;
+          }
+        }
+        setSummary(enrichedSummary);
         setAccount(sumRes.account);
         setMode(sumRes.mode);
         try {
-          sessionStorage.setItem("cloudoptix_cached_summary", JSON.stringify(sumRes.data));
+          sessionStorage.setItem("cloudoptix_cached_summary", JSON.stringify(enrichedSummary));
         } catch {}
       }
       if (resRes.success) {
@@ -123,6 +146,20 @@ export const CloudProvider = ({ children }) => {
     }
   };
 
+  const refetchForecast = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/forecast`);
+      const data = await res.json();
+      if (data && data.success && data.data) {
+        setForecast(data.data);
+        return data.data;
+      }
+    } catch (e) {
+      console.warn("Forecast refetch error:", e);
+    }
+    return null;
+  };
+
   useEffect(() => {
     // Initial fetch: silent if we already loaded cached data from sessionStorage
     fetchAllData(!!summary);
@@ -133,16 +170,31 @@ export const CloudProvider = ({ children }) => {
     if (!isLiveStreaming) return;
     const syncInterval = setInterval(async () => {
       try {
-        const [sumRes, resRes] = await Promise.all([
+        const [sumRes, resRes, fctRes] = await Promise.all([
           fetch(`${API_BASE}/summary`).then((r) => r.json()).catch(() => null),
-          fetch(`${API_BASE}/resources`).then((r) => r.json()).catch(() => null)
+          fetch(`${API_BASE}/resources`).then((r) => r.json()).catch(() => null),
+          fetch(`${API_BASE}/forecast`).then((r) => r.json()).catch(() => null)
         ]);
-        if (sumRes && sumRes.success) {
-          setSummary(sumRes.data);
+        if (sumRes && sumRes.success && sumRes.data) {
+          const enrichedSummary = { ...sumRes.data };
+          if (resRes && resRes.success && Array.isArray(resRes.data) && resRes.data.length > 0) {
+            const nonTerminated = resRes.data.filter((r) => r.state !== "terminated" && r.state !== "deleted");
+            if (!enrichedSummary.activeResources || enrichedSummary.activeResources === 0) {
+              enrichedSummary.activeResources = nonTerminated.length;
+            }
+            const calcMonthly = Math.round(nonTerminated.reduce((sum, r) => sum + (r.projectedMonthCost || r.costPerMonth || 0), 0));
+            if (!enrichedSummary.monthlyCost || enrichedSummary.monthlyCost === 0) {
+              enrichedSummary.monthlyCost = calcMonthly;
+            }
+            if (!enrichedSummary.estimatedNextMonth || enrichedSummary.estimatedNextMonth === 0) {
+              enrichedSummary.estimatedNextMonth = Math.round(calcMonthly * 1.149);
+            }
+          }
+          setSummary(enrichedSummary);
           setMode(sumRes.mode);
           if (sumRes.account) setAccount(sumRes.account);
           try {
-            sessionStorage.setItem("cloudoptix_cached_summary", JSON.stringify(sumRes.data));
+            sessionStorage.setItem("cloudoptix_cached_summary", JSON.stringify(enrichedSummary));
           } catch {}
         }
         if (resRes && resRes.success) {
@@ -150,6 +202,9 @@ export const CloudProvider = ({ children }) => {
           try {
             sessionStorage.setItem("cloudoptix_cached_resources", JSON.stringify(resRes.data));
           } catch {}
+        }
+        if (fctRes && fctRes.success && fctRes.data) {
+          setForecast(fctRes.data);
         }
       } catch (e) {
         // Silent error on background poll
@@ -191,7 +246,20 @@ export const CloudProvider = ({ children }) => {
           };
         });
 
-        setSummary((s) => (s ? { ...s, incurredSpendToDate: Math.round(totalLiveIncurred * 100) / 100 } : s));
+        setSummary((s) => {
+          if (!s) return s;
+          const updatedSum = { ...s, incurredSpendToDate: Math.round(totalLiveIncurred * 100) / 100 };
+          if ((!updatedSum.activeResources || updatedSum.activeResources === 0) && updated.length > 0) {
+            updatedSum.activeResources = updated.filter((r) => r.state !== "terminated" && r.state !== "deleted").length;
+          }
+          if ((!updatedSum.monthlyCost || updatedSum.monthlyCost === 0) && updated.length > 0) {
+            updatedSum.monthlyCost = Math.round(updated.reduce((sum, r) => sum + (r.projectedMonthCost || r.costPerMonth || 0), 0));
+          }
+          if ((!updatedSum.estimatedNextMonth || updatedSum.estimatedNextMonth === 0) && updatedSum.monthlyCost > 0) {
+            updatedSum.estimatedNextMonth = Math.round(updatedSum.monthlyCost * 1.149);
+          }
+          return updatedSum;
+        });
         return updated;
       });
     }, 1000);
@@ -624,6 +692,7 @@ export const CloudProvider = ({ children }) => {
         resources,
         recommendations,
         forecast,
+        refetchForecast,
         anomalies,
         security,
         k8s,

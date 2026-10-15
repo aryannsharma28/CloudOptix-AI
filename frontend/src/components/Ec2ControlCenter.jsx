@@ -1263,7 +1263,7 @@ export const Ec2ControlCenter = () => {
                 </div>
 
                 {/* SVG CPU Time-Series Chart */}
-                <div style={{ marginBottom: "20px", background: "#0f172a", padding: "16px", borderRadius: "10px" }}>
+                <div style={{ marginBottom: "20px", background: "var(--bg-subtle, #121212)", border: "1px solid var(--border-subtle, #262626)", padding: "16px", borderRadius: "10px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                     <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "#f8fafc" }}>
                       CPU Utilization History (Past 12 Hours)

@@ -9,7 +9,6 @@ import { CostBreakdown } from "./components/CostBreakdown";
 import { RecommendationsList } from "./components/RecommendationsList";
 import { ResourceTable } from "./components/ResourceTable";
 import { ForecastSection } from "./components/ForecastSection";
-import { K8sAutoscaling } from "./components/K8sAutoscaling";
 import { SecurityScanner } from "./components/SecurityScanner";
 import { Ec2ControlCenter } from "./components/Ec2ControlCenter";
 import { Ec2LiveTelemetryBanner } from "./components/Ec2LiveTelemetryBanner";
@@ -134,8 +133,6 @@ const DashboardContent = () => {
         {activeTab === "recommendations" && <RecommendationsList />}
 
         {activeTab === "forecast" && <ForecastSection />}
-
-        {activeTab === "k8s" && <K8sAutoscaling />}
 
         {activeTab === "security" && <SecurityScanner />}
       </main>

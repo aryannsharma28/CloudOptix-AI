@@ -3,7 +3,8 @@ const mlClientService = require("../services/mlClientService");
 
 exports.getSummary = async (req, res) => {
   try {
-    const summary = await awsCollectorService.getSummary();
+    const force = req.query.force === "true";
+    const summary = await awsCollectorService.getSummary(force);
     const account = awsCollectorService.getAccountInfo();
     const mode = awsCollectorService.getMode();
 
@@ -82,7 +83,8 @@ exports.getAwsStatus = async (req, res) => {
 
 exports.getRecommendations = async (req, res) => {
   try {
-    const recommendations = await awsCollectorService.getRecommendations();
+    const force = req.query.force === "true";
+    const recommendations = await awsCollectorService.getRecommendations(force);
     res.json({
       success: true,
       count: recommendations.length,
@@ -139,7 +141,12 @@ exports.resetSimulation = async (req, res) => {
 exports.getCostForecast = async (req, res) => {
   try {
     const summary = await awsCollectorService.getSummary();
-    const forecast = await mlClientService.getCostForecast(summary.historicalTrend);
+    const activeSpend = (summary && summary.monthlyCost > 0)
+      ? summary.monthlyCost
+      : (summary && summary.unproratedFullMonthBaseline > 0)
+        ? summary.unproratedFullMonthBaseline
+        : 0;
+    const forecast = await mlClientService.getCostForecast(summary ? summary.historicalTrend : [], activeSpend);
     res.json({
       success: true,
       data: forecast

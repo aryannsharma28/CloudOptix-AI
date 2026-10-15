@@ -3,11 +3,13 @@ const router = express.Router();
 const dashboardController = require("../controllers/dashboardController");
 const authController = require("../controllers/authController");
 
-// User Authentication & Session Management (Password, Google & Phone OTP)
+// User Authentication & Session Management (Password, Google, Phone OTP & Email OTP)
 router.post("/auth/login", authController.loginWithPassword);
 router.post("/auth/register", authController.registerWithPassword);
 router.post("/auth/phone/send-otp", authController.sendPhoneOtp);
 router.post("/auth/phone/verify-otp", authController.verifyPhoneOtp);
+router.post("/auth/email/send-otp", authController.sendEmailOtp);
+router.post("/auth/email/verify-otp", authController.verifyEmailOtp);
 router.post("/auth/google", authController.googleSignIn);
 router.get("/auth/me", authController.getCurrentUser);
 router.get("/auth/users", authController.getAllUsers);

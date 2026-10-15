@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
   const [lastGeneratedOtp, setLastGeneratedOtp] = useState(null);
+  const [lastGeneratedEmailOtp, setLastGeneratedEmailOtp] = useState(null);
 
   // Validate active session on initial mount
   useEffect(() => {
@@ -99,6 +100,68 @@ export const AuthProvider = ({ children }) => {
       setLastGeneratedOtp(null);
 
       return { success: true, user: data.user };
+    } catch (err) {
+      setAuthError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  /**
+   * Dispatches 6-digit verification code OTP to work or corporate email address
+   */
+  const sendEmailOtp = async (email) => {
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const res = await fetch(`${API_BASE}/auth/email/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() })
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to generate email verification code.");
+      }
+
+      setLastGeneratedEmailOtp(data.otp);
+      return { success: true, otp: data.otp, message: data.message };
+    } catch (err) {
+      setAuthError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  /**
+   * Verifies 6-digit email OTP and auto-authenticates the user
+   */
+  const verifyEmailOtp = async (email, otp, name) => {
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const res = await fetch(`${API_BASE}/auth/email/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), otp: String(otp).trim(), name })
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to verify email OTP code.");
+      }
+
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem("cloudoptix_user", JSON.stringify(data.user));
+      localStorage.setItem("cloudoptix_token", data.token);
+      setIsAuthModalOpen(false);
+      setLastGeneratedEmailOtp(null);
+
+      return { success: true, user: data.user, awsConnected: data.awsConnected };
     } catch (err) {
       setAuthError(err.message);
       return { success: false, error: err.message };
@@ -236,6 +299,7 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem("cloudoptix_user");
       sessionStorage.removeItem("cloudoptix_token");
       setLastGeneratedOtp(null);
+      setLastGeneratedEmailOtp(null);
     }
   };
 
@@ -262,8 +326,11 @@ export const AuthProvider = ({ children }) => {
         authError,
         setAuthError,
         lastGeneratedOtp,
+        lastGeneratedEmailOtp,
         sendPhoneOtp,
         verifyPhoneOtp,
+        sendEmailOtp,
+        verifyEmailOtp,
         loginWithGoogle,
         loginWithPassword,
         registerWithPassword,

@@ -30,34 +30,36 @@ export const UserAuthView = () => {
     authError,
     setAuthError,
     lastGeneratedOtp,
+    lastGeneratedEmailOtp,
     sendPhoneOtp,
     verifyPhoneOtp,
+    sendEmailOtp,
+    verifyEmailOtp,
     loginWithGoogle,
     logout
   } = useAuth();
 
   const { account } = useCloud();
 
-  const [activeTab, setActiveTab] = useState("google"); // "google" | "phone"
+  const [activeTab, setActiveTab] = useState("emailOtp"); // "emailOtp" | "google" | "phone"
   const [googleEmail, setGoogleEmail] = useState("");
   const [googleName, setGoogleName] = useState("");
 
-  const [countryCode, setCountryCode] = useState("+91");
-  const [phoneDigits, setPhoneDigits] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [enteredOtp, setEnteredOtp] = useState(["", "", "", "", "", ""]);
-  const [displayName, setDisplayName] = useState("");
-  const [countdown, setCountdown] = useState(0);
-
+  // Email OTP state
+  const [emailOtpAddress, setEmailOtpAddress] = useState("");
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [enteredEmailOtp, setEnteredEmailOtp] = useState(["", "", "", "", "", ""]);
+  const [emailDisplayName, setEmailDisplayName] = useState("");
+  const [emailCountdown, setEmailCountdown] = useState(0);
   const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
     let timer;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    if (emailCountdown > 0) {
+      timer = setTimeout(() => setEmailCountdown(emailCountdown - 1), 1000);
     }
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [emailCountdown]);
 
   // Fetch all registered users
   const loadUsers = () => {
@@ -100,69 +102,88 @@ export const UserAuthView = () => {
   };
 
   // Phone OTP handlers
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    if (!phoneDigits.trim() || phoneDigits.trim().length < 7) {
-      setAuthError("Please enter a valid mobile number.");
+  // Email OTP Handlers
+  const handleSendEmailOtp = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!emailOtpAddress.trim()) {
+      setAuthError("Please enter your work or personal email address.");
       return;
     }
-
-    const fullPhone = `${countryCode}${phoneDigits.trim()}`;
-    const res = await sendPhoneOtp(fullPhone);
+    const res = await sendEmailOtp(emailOtpAddress.trim());
     if (res.success) {
-      setOtpSent(true);
-      setCountdown(45);
-      setEnteredOtp(["", "", "", "", "", ""]);
+      setEmailOtpSent(true);
+      setEmailCountdown(45);
+      setEnteredEmailOtp(["", "", "", "", "", ""]);
     }
   };
 
-  const handleOtpChange = (index, value) => {
+  const handlePresetEmailOtp = async (presetEmail) => {
+    setEmailOtpAddress(presetEmail);
+    setAuthError("");
+    const res = await sendEmailOtp(presetEmail);
+    if (res.success) {
+      setEmailOtpSent(true);
+      setEmailCountdown(45);
+      setEnteredEmailOtp(["", "", "", "", "", ""]);
+    }
+  };
+
+  const handleAutoConnectEmailOtp = async () => {
+    if (lastGeneratedEmailOtp && lastGeneratedEmailOtp.length === 6) {
+      setEnteredEmailOtp(lastGeneratedEmailOtp.split(""));
+      await verifyEmailOtp(emailOtpAddress.trim(), lastGeneratedEmailOtp, emailDisplayName.trim() || null);
+    }
+  };
+
+  const handleEmailOtpChange = async (index, value) => {
     if (value.length > 1) {
       const pasted = value.replace(/\D/g, "").slice(0, 6);
       if (pasted.length > 0) {
-        const newDigits = [...enteredOtp];
+        const newDigits = [...enteredEmailOtp];
         for (let i = 0; i < 6; i++) {
           newDigits[i] = pasted[i] || "";
         }
-        setEnteredOtp(newDigits);
+        setEnteredEmailOtp(newDigits);
+        if (pasted.length === 6) {
+          await verifyEmailOtp(emailOtpAddress.trim(), pasted, emailDisplayName.trim() || null);
+        }
         return;
       }
     }
 
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const newDigits = [...enteredOtp];
-    newDigits[index] = digit;
-    setEnteredOtp(newDigits);
+    const clean = value.replace(/\D/g, "").slice(-1);
+    const newDigits = [...enteredEmailOtp];
+    newDigits[index] = clean;
+    setEnteredEmailOtp(newDigits);
 
-    if (digit && index < 5) {
-      const nextInput = document.getElementById(`fullview-otp-${index + 1}`);
+    if (clean && index < 5) {
+      const nextInput = document.getElementById(`fullview-email-otp-${index + 1}`);
       if (nextInput) nextInput.focus();
+    }
+
+    if (clean && index === 5) {
+      const fullCode = newDigits.join("");
+      if (fullCode.length === 6) {
+        await verifyEmailOtp(emailOtpAddress.trim(), fullCode, emailDisplayName.trim() || null);
+      }
     }
   };
 
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !enteredOtp[index] && index > 0) {
-      const prevInput = document.getElementById(`fullview-otp-${index - 1}`);
+  const handleEmailOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !enteredEmailOtp[index] && index > 0) {
+      const prevInput = document.getElementById(`fullview-email-otp-${index - 1}`);
       if (prevInput) prevInput.focus();
     }
   };
 
-  const handleAutoFillOtp = () => {
-    if (lastGeneratedOtp && lastGeneratedOtp.length === 6) {
-      setEnteredOtp(lastGeneratedOtp.split(""));
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    const fullOtp = enteredOtp.join("");
+  const handleVerifyEmailOtp = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const fullOtp = enteredEmailOtp.join("");
     if (fullOtp.length !== 6) {
-      setAuthError("Please enter the complete 6-digit OTP code.");
+      setAuthError("Please enter the complete 6-digit email verification code.");
       return;
     }
-
-    const fullPhone = `${countryCode}${phoneDigits.trim()}`;
-    await verifyPhoneOtp(fullPhone, fullOtp, displayName.trim() || null);
+    await verifyEmailOtp(emailOtpAddress.trim(), fullOtp, emailDisplayName.trim() || null);
   };
 
   return (
@@ -228,7 +249,7 @@ export const UserAuthView = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: "1.15fr 1fr",
               gap: "8px",
               padding: "4px",
               backgroundColor: "#f1f5f9",
@@ -236,6 +257,32 @@ export const UserAuthView = () => {
               marginBottom: "20px"
             }}
           >
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("emailOtp");
+                setAuthError("");
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                padding: "10px 8px",
+                borderRadius: "8px",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: "700",
+                fontSize: "0.85rem",
+                backgroundColor: activeTab === "emailOtp" ? "#ffffff" : "transparent",
+                color: activeTab === "emailOtp" ? "#0284c7" : "#64748b",
+                boxShadow: activeTab === "emailOtp" ? "0 2px 4px rgba(0,0,0,0.06)" : "none"
+              }}
+            >
+              <Zap size={16} style={{ color: "#0284c7" }} />
+              <span>Mail OTP (Auto)</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -247,50 +294,24 @@ export const UserAuthView = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "8px",
-                padding: "10px",
+                padding: "10px 8px",
                 borderRadius: "8px",
                 border: "none",
                 cursor: "pointer",
                 fontWeight: "600",
-                fontSize: "0.88rem",
+                fontSize: "0.85rem",
                 backgroundColor: activeTab === "google" ? "#ffffff" : "transparent",
                 color: activeTab === "google" ? "#0f172a" : "#64748b",
                 boxShadow: activeTab === "google" ? "0 2px 4px rgba(0,0,0,0.06)" : "none"
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24">
+              <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
               </svg>
-              <span>Sign in with Google</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("phone");
-                setAuthError("");
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                padding: "10px",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: "600",
-                fontSize: "0.88rem",
-                backgroundColor: activeTab === "phone" ? "#ffffff" : "transparent",
-                color: activeTab === "phone" ? "#0f172a" : "#64748b",
-                boxShadow: activeTab === "phone" ? "0 2px 4px rgba(0,0,0,0.06)" : "none"
-              }}
-            >
-              <Phone size={17} style={{ color: "#10b981" }} />
-              <span>Phone No. + OTP</span>
+              <span>Google</span>
             </button>
           </div>
 
@@ -312,6 +333,297 @@ export const UserAuthView = () => {
             >
               <AlertCircle size={16} className="shrink-0" />
               <span>{authError}</span>
+            </div>
+          )}
+
+          {/* TAB 0: EMAIL VERIFICATION CODE OTP + AUTO CONNECT */}
+          {activeTab === "emailOtp" && (
+            <div>
+              {!emailOtpSent ? (
+                <form onSubmit={handleSendEmailOtp}>
+                  <div style={{ marginBottom: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                      <label style={{ fontSize: "0.82rem", fontWeight: "700", color: "#334155" }}>
+                        Enter Work or Personal Email
+                      </label>
+                      <span className="badge badge-neon-green" style={{ fontSize: "0.7rem", padding: "2px 8px" }}>
+                        ⚡ Auto-Connect
+                      </span>
+                    </div>
+
+                    <div style={{ position: "relative" }}>
+                      <Mail size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                      <input
+                        type="email"
+                        placeholder="e.g. aryan.cloud@gmail.com or dev@company.com"
+                        value={emailOtpAddress}
+                        onChange={(e) => setEmailOtpAddress(e.target.value)}
+                        required
+                        style={{
+                          width: "100%",
+                          padding: "11px 12px 11px 38px",
+                          borderRadius: "8px",
+                          border: "1px solid #cbd5e1",
+                          fontSize: "0.88rem",
+                          outline: "none"
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 1-Click Fast Profile Presets */}
+                  <div style={{ marginBottom: "16px" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                      Quick Auto-Connect Profiles:
+                    </span>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      {[
+                        { label: "Aryan Cloud (Admin)", email: "aryan.cloud@gmail.com" },
+                        { label: "CloudOptix Admin", email: "admin@cloudoptix.ai" },
+                        { label: "FinOps Lead", email: "finops.engineer@cloudoptix.ai" }
+                      ].map((preset) => (
+                        <button
+                          key={preset.email}
+                          type="button"
+                          onClick={() => handlePresetEmailOtp(preset.email)}
+                          disabled={authLoading}
+                          style={{
+                            padding: "5px 10px",
+                            borderRadius: "6px",
+                            border: "1px solid #cbd5e1",
+                            background: "#f8fafc",
+                            color: "#334155",
+                            fontSize: "0.74rem",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px"
+                          }}
+                        >
+                          <Sparkles size={11} style={{ color: "#0284c7" }} />
+                          <span>{preset.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Auto-Connect Callout */}
+                  <div
+                    style={{
+                      padding: "12px 14px",
+                      borderRadius: "10px",
+                      background: "rgba(2, 132, 199, 0.08)",
+                      border: "1px solid rgba(2, 132, 199, 0.25)",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "10px",
+                      fontSize: "0.78rem",
+                      color: "#0369a1",
+                      marginBottom: "16px"
+                    }}
+                  >
+                    <Zap size={16} style={{ color: "#0284c7", flexShrink: 0, marginTop: "2px" }} />
+                    <div style={{ lineHeight: "1.4" }}>
+                      <strong>Auto-Connect Activated:</strong> Authenticating via Email OTP will immediately sync session tokens and connect live AWS IAM telemetry configured in your environment.
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="btn btn-primary"
+                    style={{
+                      width: "100%",
+                      padding: "12px",
+                      fontSize: "0.95rem",
+                      fontWeight: "700",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      borderRadius: "8px",
+                      backgroundColor: "#0284c7"
+                    }}
+                  >
+                    {authLoading ? (
+                      <>
+                        <RefreshCw size={16} style={{ animation: "spin 1s linear infinite" }} />
+                        <span>Sending Verification Code...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mail size={16} />
+                        <span>Generate & Send Mail OTP</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyEmailOtp}>
+                  {/* Real-Time Live OTP Banner with Auto-Connect */}
+                  {lastGeneratedEmailOtp && (
+                    <div
+                      style={{
+                        padding: "14px 18px",
+                        borderRadius: "12px",
+                        background: "linear-gradient(135deg, #e0f2fe, #dcfce7)",
+                        border: "1px solid #38bdf8",
+                        marginBottom: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between"
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0369a1", textTransform: "uppercase" }}>
+                          📧 Mail Verification Live Code
+                        </div>
+                        <div style={{ fontSize: "1.4rem", fontWeight: "800", color: "#0284c7", letterSpacing: "3px", fontFamily: "monospace", margin: "2px 0" }}>
+                          {lastGeneratedEmailOtp}
+                        </div>
+                        <div style={{ fontSize: "0.72rem", color: "#075985" }}>Sent to {emailOtpAddress} (Valid for 5 mins)</div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAutoConnectEmailOtp}
+                        disabled={authLoading}
+                        style={{
+                          padding: "10px 16px",
+                          fontSize: "0.82rem",
+                          fontWeight: "700",
+                          borderRadius: "8px",
+                          border: "none",
+                          background: "linear-gradient(135deg, #0284c7, #059669)",
+                          color: "#ffffff",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          boxShadow: "0 2px 8px rgba(2, 132, 199, 0.35)"
+                        }}
+                      >
+                        <Zap size={14} />
+                        <span>Auto Connect</span>
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#334155" }}>
+                        Enter 6-Digit Email Code
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setEmailOtpSent(false)}
+                        style={{ background: "none", border: "none", color: "#0284c7", fontSize: "0.75rem", cursor: "pointer", fontWeight: "600" }}
+                      >
+                        Change Email
+                      </button>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                      {enteredEmailOtp.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          id={`fullview-email-otp-${idx}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleEmailOtpChange(idx, e.target.value)}
+                          onKeyDown={(e) => handleEmailOtpKeyDown(idx, e)}
+                          style={{
+                            width: "48px",
+                            height: "52px",
+                            textAlign: "center",
+                            fontSize: "1.4rem",
+                            fontWeight: "800",
+                            fontFamily: "monospace",
+                            borderRadius: "8px",
+                            border: digit ? "2px solid #0284c7" : "1px solid #cbd5e1",
+                            background: digit ? "#f0f9ff" : "#ffffff",
+                            outline: "none"
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={{ display: "block", fontSize: "0.8rem", fontWeight: "600", color: "#334155", marginBottom: "6px" }}>
+                      Display Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Aryan AWS FinOps"
+                      value={emailDisplayName}
+                      onChange={(e) => setEmailDisplayName(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        fontSize: "0.88rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={authLoading || enteredEmailOtp.join("").length !== 6}
+                    className="btn btn-primary"
+                    style={{
+                      width: "100%",
+                      padding: "12px",
+                      fontSize: "0.95rem",
+                      fontWeight: "700",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      borderRadius: "8px",
+                      backgroundColor: "#0284c7",
+                      opacity: enteredEmailOtp.join("").length === 6 ? 1 : 0.6
+                    }}
+                  >
+                    {authLoading ? (
+                      <>
+                        <RefreshCw size={16} style={{ animation: "spin 1s linear infinite" }} />
+                        <span>Verifying & Auto-Connecting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck size={16} />
+                        <span>Verify & Auto-Connect</span>
+                      </>
+                    )}
+                  </button>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", fontSize: "0.8rem" }}>
+                    <button
+                      type="button"
+                      onClick={() => setEmailOtpSent(false)}
+                      style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer" }}
+                    >
+                      Cancel
+                    </button>
+                    {emailCountdown > 0 ? (
+                      <span style={{ color: "#94a3b8" }}>Resend code in {emailCountdown}s</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleSendEmailOtp}
+                        style={{ background: "none", border: "none", color: "#0284c7", cursor: "pointer", fontWeight: "600" }}
+                      >
+                        Resend Code
+                      </button>
+                    )}
+                  </div>
+                </form>
+              )}
             </div>
           )}
 
@@ -454,56 +766,7 @@ export const UserAuthView = () => {
               </form>
             </div>
           )}
-
-          {/* TAB 2: PHONE NO. + OTP GENERATOR */}
-          {activeTab === "phone" && (
-            <div>
-              {!otpSent ? (
-                <form onSubmit={handleSendOtp}>
-                  <div style={{ marginBottom: "16px" }}>
-                    <label style={{ display: "block", fontSize: "0.8rem", fontWeight: "600", color: "#334155", marginBottom: "6px" }}>
-                      Enter Mobile Phone Number
-                    </label>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <select
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        style={{
-                          padding: "10px 8px",
-                          borderRadius: "8px",
-                          border: "1px solid #cbd5e1",
-                          fontSize: "0.88rem",
-                          fontWeight: "600",
-                          backgroundColor: "#f8fafc",
-                          outline: "none"
-                        }}
-                      >
-                        <option value="+91">🇮🇳 +91 (IN)</option>
-                        <option value="+1">🇺🇸 +1 (US)</option>
-                        <option value="+44">🇬🇧 +44 (UK)</option>
-                        <option value="+65">🇸🇬 +65 (SG)</option>
-                        <option value="+971">🇦🇪 +971 (UAE)</option>
-                      </select>
-
-                      <div style={{ position: "relative", flex: 1 }}>
-                        <Phone size={16} style={{ position: "absolute", left: "12px", top: "12px", color: "#94a3b8" }} />
-                        <input
-                          type="tel"
-                          placeholder="e.g. 98765 43210"
-                          value={phoneDigits}
-                          onChange={(e) => setPhoneDigits(e.target.value.replace(/\D/g, ""))}
-                          required
-                          maxLength={12}
-                          style={{
-                            width: "100%",
-                            padding: "10px 12px 10px 38px",
-                            borderRadius: "8px",
-                            border: "1px solid #cbd5e1",
-                            fontSize: "0.88rem",
-                            outline: "none"
-                          }}
-                        />
-                      </div>
+        </div>
                     </div>
                   </div>
 
@@ -727,7 +990,7 @@ export const UserAuthView = () => {
                     <div style={{ fontSize: "0.82rem", color: "#64748b" }}>{user.email || user.phoneNumber}</div>
                     <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
                       <span className="badge badge-neon-green" style={{ fontSize: "0.68rem" }}>
-                        {user.authProvider === "GOOGLE" ? "Google (Gmail)" : "Phone OTP"}
+                        {user.authProvider === "GOOGLE" ? "Google (Gmail)" : user.authProvider === "EMAIL_OTP" ? "Mail OTP (Verified)" : "Phone OTP"}
                       </span>
                       <span className="badge badge-purple" style={{ fontSize: "0.68rem" }}>{user.role}</span>
                     </div>
@@ -850,8 +1113,8 @@ export const UserAuthView = () => {
                         </span>
                       </td>
                       <td>
-                        <span className={`badge ${u.authProvider === "GOOGLE" ? "badge-cyan" : "badge-neon-green"}`} style={{ fontSize: "0.72rem" }}>
-                          {u.authProvider === "GOOGLE" ? "Gmail" : "Phone OTP"}
+                        <span className={`badge ${u.authProvider === "EMAIL_OTP" ? "badge-cyan" : (u.authProvider === "GOOGLE" ? "badge-blue" : "badge-neon-green")}`} style={{ fontSize: "0.72rem" }}>
+                          {u.authProvider === "EMAIL_OTP" ? "Mail OTP" : (u.authProvider === "GOOGLE" ? "Gmail" : "Phone OTP")}
                         </span>
                       </td>
                       <td>
