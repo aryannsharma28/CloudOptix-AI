@@ -162,7 +162,3 @@ Expected output:
 
 ---
 
-## 📚 Capstone & Viva Documentation
-
-- 📐 **[ARCHITECTURE.md](ARCHITECTURE.md)**: In-depth technical architecture, data flows, and FinOps mathematical formulas.
-- 🎓 **[VIVA_QUESTIONS.md](VIVA_QUESTIONS.md)**: 25+ targeted viva/interview questions with answers prepared specifically for external examiners.
