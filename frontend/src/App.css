@@ -995,15 +995,17 @@
 }
 
 /* ─── Modal ─── */
-.modal-overlay {
+.modal-overlay,
+.modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 10000;        /* above sidebar (100) and topbar (99) */
   padding: 20px;
   animation: fadeIn 0.18s ease;
 }
@@ -1017,6 +1019,31 @@
   from { opacity: 0; transform: translateY(-10px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+.modal-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-card) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7) !important;
+  color: var(--text-primary) !important;
+  animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* white-box-card — used inside ConnectAwsModal */
+.white-box-card {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  padding: 32px !important;
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--border-card) !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .white-box-card {
+  background: #18181f !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
 
 .modal-card {
   background: var(--bg-card) !important;
