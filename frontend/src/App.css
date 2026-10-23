@@ -2,22 +2,34 @@
    CLOUDOPTIX AI — LAYOUT & COMPONENT STYLES
    ========================================= */
 
-/* ─── App Shell (Sidebar Layout) ─── */
+/* ─── Sidebar dark palette (always dark, theme-independent) ─── */
+:root {
+  --sb-bg:          #111118;
+  --sb-surface:     #16161f;
+  --sb-border:      rgba(255, 255, 255, 0.06);
+  --sb-text:        #8888a8;
+  --sb-text-hover:  #e8e8f0;
+  --sb-active-bg:   rgba(249, 115, 22, 0.14);
+  --sb-active-text: #f97316;
+  --sb-muted:       #444458;
+}
+
+/* ─── App Shell ─── */
 .app-shell {
   display: flex;
   min-height: 100vh;
   position: relative;
 }
 
-/* ─── Sidebar ─── */
+/* ─── Sidebar (ALWAYS dark regardless of theme) ─── */
 .sidebar {
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border-subtle);
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -30,7 +42,7 @@
   align-items: center;
   gap: 11px;
   padding: 18px 16px 16px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--sb-border);
   flex-shrink: 0;
 }
 
@@ -50,14 +62,14 @@
 .sidebar-logo-name {
   font-size: 0.97rem;
   font-weight: 800;
-  color: var(--text-heading);
+  color: #ffffff;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
 .sidebar-logo-sub {
   font-size: 0.65rem;
-  color: var(--text-muted);
+  color: var(--sb-muted);
   font-weight: 500;
   letter-spacing: 0.02em;
   margin-top: 1px;
@@ -69,12 +81,14 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-section-label {
   font-size: 0.62rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--sb-muted);
   text-transform: uppercase;
   letter-spacing: 0.09em;
   padding: 12px 10px 5px;
@@ -90,7 +104,7 @@
   font-family: var(--font-body);
   font-size: 0.83rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--sb-text);
   background: transparent;
   cursor: pointer;
   transition: all 0.16s ease;
@@ -102,14 +116,14 @@
 }
 
 .sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary);
-  border-color: var(--border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--sb-text-hover);
+  border-color: var(--sb-border);
 }
 
 .sidebar-nav-item.active {
-  background: var(--brand-dim);
-  color: var(--brand);
+  background: var(--sb-active-bg);
+  color: var(--sb-active-text);
   font-weight: 600;
   border-color: rgba(249, 115, 22, 0.2);
 }
@@ -138,13 +152,13 @@
 
 .sidebar-divider {
   height: 1px;
-  background: var(--border-subtle);
+  background: var(--sb-border);
   margin: 10px 10px;
 }
 
 .sidebar-footer {
   padding: 12px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--sb-border);
   flex-shrink: 0;
 }
 
@@ -154,16 +168,16 @@
   gap: 10px;
   padding: 10px;
   border-radius: 10px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  background: var(--sb-surface);
+  border: 1px solid var(--sb-border);
   cursor: pointer;
   transition: all 0.18s ease;
   position: relative;
 }
 
 .sidebar-user-card:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-default);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
 }
 
 .sidebar-user-avatar {
@@ -184,7 +198,7 @@
 .sidebar-user-name {
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--text-heading);
+  color: #e8e8f4;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -193,7 +207,7 @@
 
 .sidebar-user-role {
   font-size: 0.68rem;
-  color: var(--text-muted);
+  color: var(--sb-muted);
   margin-top: 1px;
   white-space: nowrap;
   overflow: hidden;
@@ -207,15 +221,22 @@
   left: var(--sidebar-width);
   right: 0;
   height: var(--topbar-height);
-  background: rgba(15, 15, 23, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-card);
   display: flex;
   align-items: center;
   padding: 0 20px;
   gap: 10px;
   z-index: 99;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] .topbar {
+  background: rgba(14, 14, 22, 0.95);
+  border-bottom-color: rgba(255,255,255,0.06);
+  box-shadow: none;
 }
 
 .topbar-title {
@@ -226,13 +247,6 @@
   margin-right: auto;
 }
 
-.topbar-title span {
-  color: var(--text-muted);
-  font-weight: 400;
-  font-size: 0.82rem;
-  margin-left: 6px;
-}
-
 /* ─── App Content ─── */
 .app-content {
   margin-left: var(--sidebar-width);
@@ -240,6 +254,7 @@
   min-height: 100vh;
   flex: 1;
   background: var(--bg-base);
+  transition: background 0.25s ease;
 }
 
 /* ─── Legacy wrapper (we map it to content area) ─── */
@@ -1052,41 +1067,53 @@ input:focus, select:focus, textarea:focus {
 
 .font-semibold { font-weight: 600; }
 
-/* ─── Light mode topbar ─── */
-[data-theme="light"] .topbar {
-  background: rgba(244, 246, 250, 0.95);
-  border-bottom-color: var(--border-default);
+/* ─── Dark mode card overrides ─── */
+[data-theme="dark"] .rec-card,
+[data-theme="dark"] .metric-card,
+[data-theme="dark"] .service-breakdown-card,
+[data-theme="dark"] .historical-trend-card,
+[data-theme="dark"] .activity-feed-card,
+[data-theme="dark"] .maturity-card,
+[data-theme="dark"] .carbon-card,
+[data-theme="dark"] .region-card,
+[data-theme="dark"] .ec2-banner-card,
+[data-theme="dark"] .s3-banner-card,
+[data-theme="dark"] .resource-table-container {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+  color: var(--text-primary) !important;
 }
 
-[data-theme="light"] .sidebar {
-  background: #eef1f7;
-  border-right-color: rgba(0,0,0,0.08);
+[data-theme="dark"] .service-cost-item,
+[data-theme="dark"] .timeline-item {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-subtle) !important;
 }
 
-[data-theme="light"] .sidebar-nav-item.active {
-  background: rgba(249,115,22,0.10);
-  color: var(--brand-dark);
+[data-theme="dark"] .resource-table th {
+  background: var(--bg-elevated) !important;
+  color: var(--text-muted) !important;
 }
 
-[data-theme="light"] .sidebar-user-card {
-  background: #fff;
-  border-color: rgba(0,0,0,0.09);
+[data-theme="dark"] .resource-table td {
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border-subtle) !important;
 }
 
-[data-theme="light"] .rec-card,
-[data-theme="light"] .metric-card,
-[data-theme="light"] .service-breakdown-card,
-[data-theme="light"] .historical-trend-card,
-[data-theme="light"] .activity-feed-card,
-[data-theme="light"] .maturity-card,
-[data-theme="light"] .carbon-card,
-[data-theme="light"] .region-card,
-[data-theme="light"] .ec2-banner-card,
-[data-theme="light"] .s3-banner-card,
-[data-theme="light"] .resource-table-container {
-  background: #ffffff;
-  border-color: rgba(0,0,0,0.08);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+[data-theme="dark"] .resource-table tr:hover td {
+  background: rgba(255,255,255,0.03) !important;
+}
+
+[data-theme="dark"] .chart-bar-track,
+[data-theme="dark"] .phase-bar-track,
+[data-theme="dark"] .region-track,
+[data-theme="dark"] .stacked-cost-bar {
+  background: var(--bg-elevated) !important;
+}
+
+[data-theme="dark"] .profile-dropdown {
+  background: var(--bg-card);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.6), 0 0 0 1px var(--border-card);
 }
 
 [data-theme="light"] .service-cost-item,

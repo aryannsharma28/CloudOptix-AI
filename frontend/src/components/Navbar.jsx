@@ -13,16 +13,11 @@ import {
   Server,
   LogOut,
   ChevronDown,
-  CheckCircle2,
   Sun,
   Moon,
   Monitor,
   PlusCircle,
   Database,
-  Zap,
-  Settings,
-  BellRing,
-  Search
 } from "lucide-react";
 
 export const Navbar = () => {
@@ -301,7 +296,9 @@ export const Navbar = () => {
         {/* Page title */}
         <div className="topbar-title">
           {tabLabels[activeTab] || "Dashboard"}
-          <span>/ CloudOptix AI</span>
+          <span style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 400, marginLeft: "6px" }}>
+            / CloudOptix AI
+          </span>
         </div>
 
         {/* Live stream toggle */}
@@ -310,8 +307,12 @@ export const Navbar = () => {
           style={{
             display: "flex", alignItems: "center", gap: "6px",
             padding: "5px 11px", borderRadius: "20px", cursor: "pointer",
-            background: isLiveStreaming ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.05)",
-            border: isLiveStreaming ? "1px solid rgba(34,197,94,0.25)" : "1px solid var(--border-subtle)",
+            background: isLiveStreaming
+              ? (isDark ? "rgba(34,197,94,0.12)" : "rgba(22,163,74,0.08)")
+              : (isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"),
+            border: isLiveStreaming
+              ? `1px solid ${isDark ? "rgba(34,197,94,0.3)" : "rgba(22,163,74,0.25)"}`
+              : `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
             transition: "all 0.2s ease",
           }}
           title={isLiveStreaming ? "Live — click to pause" : "Paused — click to resume"}
@@ -321,7 +322,10 @@ export const Navbar = () => {
             background: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)",
             animation: isLiveStreaming ? "pulse 1.5s infinite" : "none",
           }} />
-          <span style={{ fontSize: "0.72rem", fontWeight: "700", color: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)", letterSpacing: "0.04em" }}>
+          <span style={{
+            fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.04em",
+            color: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)"
+          }}>
             {isLiveStreaming ? "LIVE" : "PAUSED"}
           </span>
         </div>
@@ -339,14 +343,47 @@ export const Navbar = () => {
           ))}
         </div>
 
+        {/* ── THEME TOGGLE (Light / Dark) ── */}
+        <button
+          onClick={() => setTheme(isDark ? "light" : "dark")}
+          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: "34px", height: "34px",
+            borderRadius: "8px",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)"}`,
+            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+            color: isDark ? "#f0f0fa" : "#374151",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            flexShrink: 0,
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = isDark ? "rgba(249,115,22,0.15)" : "rgba(249,115,22,0.10)";
+            e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)";
+            e.currentTarget.style.color = "#f97316";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
+            e.currentTarget.style.borderColor = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
+            e.currentTarget.style.color = isDark ? "#f0f0fa" : "#374151";
+          }}
+        >
+          {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+        </button>
+
         {/* Connect AWS button */}
         <button
           className="btn btn-sm"
           onClick={() => setIsConnectModalOpen(true)}
           style={{
-            background: mode === "LIVE_AWS" ? "var(--color-success-dim)" : "var(--brand)",
+            background: mode === "LIVE_AWS"
+              ? (isDark ? "rgba(34,197,94,0.15)" : "rgba(22,163,74,0.10)")
+              : "var(--brand)",
             color: mode === "LIVE_AWS" ? "var(--color-success)" : "#fff",
-            border: mode === "LIVE_AWS" ? "1px solid rgba(34,197,94,0.3)" : "none",
+            border: mode === "LIVE_AWS"
+              ? `1px solid ${isDark ? "rgba(34,197,94,0.3)" : "rgba(22,163,74,0.25)"}`
+              : "none",
             fontWeight: "700",
           }}
         >

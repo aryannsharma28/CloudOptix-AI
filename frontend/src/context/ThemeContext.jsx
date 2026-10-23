@@ -9,14 +9,14 @@ export const ThemeProvider = ({ children }) => {
       if (saved && ["light", "dark", "system"].includes(saved)) {
         return saved;
       }
-      // If user system preference is dark, default to dark, else dark for modern FinOps
-      return "dark";
+      // Default to light mode for best compatibility with existing components
+      return "light";
     } catch {
-      return "dark";
+      return "light";
     }
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState("dark");
+  const [resolvedTheme, setResolvedTheme] = useState("light");
 
   useEffect(() => {
     const applyTheme = () => {
