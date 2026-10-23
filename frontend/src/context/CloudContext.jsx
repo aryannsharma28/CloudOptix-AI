@@ -67,7 +67,7 @@ export const CloudProvider = ({ children }) => {
   const [isLiveStreaming, setIsLiveStreaming] = useState(true);
   const [isEnableModalOpen, setIsEnableModalOpen] = useState(false);
 
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -138,7 +138,7 @@ export const CloudProvider = ({ children }) => {
     } catch (err) {
       console.error("API connection error:", err);
       if (!summary) {
-        setError("Unable to connect to backend server at http://localhost:5000.");
+        setError(`Unable to connect to backend server at ${import.meta.env.VITE_API_URL || "http://localhost:5000"}.`);
       }
     } finally {
       setLoading(false);

@@ -63,7 +63,7 @@ export const UserAuthView = () => {
 
   // Fetch all registered users
   const loadUsers = () => {
-    fetch("http://localhost:5000/api/auth/users")
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/users`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
