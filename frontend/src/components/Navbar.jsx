@@ -11,19 +11,18 @@ import {
   RotateCcw,
   Activity,
   Server,
-  User,
   LogOut,
   ChevronDown,
-  Phone,
-  Mail,
   CheckCircle2,
-  KeyRound,
   Sun,
   Moon,
   Monitor,
   PlusCircle,
-  Radio,
-  Database
+  Database,
+  Zap,
+  Settings,
+  BellRing,
+  Search
 } from "lucide-react";
 
 export const Navbar = () => {
@@ -43,452 +42,328 @@ export const Navbar = () => {
     setIsEnableModalOpen
   } = useCloud();
 
-  const { user, isAuthenticated, isAdmin, setIsAuthModalOpen, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { theme, resolvedTheme, setTheme, isDark } = useTheme();
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const profileMenuRef = useRef(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
-        setIsProfileMenuOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
       }
     };
-    if (isProfileMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isProfileMenuOpen]);
+    if (isProfileOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isProfileOpen]);
 
-  const pendingRecommendations = recommendations.filter((r) => !r.applied).length;
+  const pendingRecs = recommendations.filter((r) => !r.applied).length;
+
+  const navItems = [
+    { id: "overview",        label: "Dashboard",         icon: Activity,    badge: null },
+    { id: "resources",       label: `Fleet (${resources.length})`, icon: Layers, badge: null },
+    { id: "ec2",             label: "EC2 Operations",    icon: Server,      badge: null },
+    { id: "s3",              label: "S3 Storage",        icon: Database,    badge: null },
+    { id: "recommendations", label: "AI Recommendations",icon: Sparkles,    badge: pendingRecs > 0 ? pendingRecs : null },
+    { id: "forecast",        label: "Spend Forecast",    icon: TrendingUp,  badge: null },
+    { id: "security",        label: "Security",          icon: ShieldCheck, badge: null },
+  ];
+
+  const tabLabels = {
+    overview: "Executive Dashboard",
+    resources: "Active Fleet",
+    ec2: "EC2 Live Operations",
+    s3: "S3 Storage Operations",
+    recommendations: "AI Recommendations",
+    forecast: "AI Spend Forecast",
+    security: "Security & Compliance",
+  };
 
   return (
-    <header className="navbar-container">
-      {/* Top Banner */}
-      <div className="top-banner">
-        <div className="brand-section">
-          <div className="brand-logo">
-            <Cloud className="text-neon-cyan" size={28} />
+    <>
+      {/* ─────────────────────────────────────────
+          SIDEBAR
+      ───────────────────────────────────────── */}
+      <aside className="sidebar">
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-icon">
+            <Cloud size={18} strokeWidth={2.5} />
           </div>
-          <div className="brand-info">
-            <div className="brand-title-row">
-              <h1 className="brand-title">CloudOptix AI</h1>
-              <span className="badge badge-cream">FinOps & AI Platform</span>
-            </div>
-            <p className="brand-subtitle">
-              Intelligent AWS Cost Optimization & Auto-Scaling Management
-            </p>
+          <div>
+            <div className="sidebar-logo-name">CloudOptix</div>
+            <div className="sidebar-logo-sub">AI Platform</div>
           </div>
         </div>
 
-        <div className="top-actions">
-          {/* Cloud Account Badge - Clickable to open Connect modal */}
-          <div
-            className="account-badge glass-panel"
-            style={{ cursor: "pointer" }}
-            onClick={() => setIsConnectModalOpen(true)}
-            title="Click to view AWS cloud connection settings"
-          >
-            <Server size={14} className="text-neon-cyan" />
-            <span><strong>{mode === "LIVE_AWS" ? "AWS Cloud" : "AWS Disconnected"}</strong></span>
-            <span className="separator">•</span>
-            <span>{account?.primaryRegion || "ap-south-1"}</span>
-          </div>
-
-          {/* Connect AWS Account Action Button */}
-          <button
-            className={`btn btn-sm ${mode === "LIVE_AWS" ? "btn-secondary" : "btn-primary"}`}
-            onClick={() => setIsConnectModalOpen(true)}
+        {/* Connection status strip */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 14px",
+            margin: "10px 10px 2px",
+            borderRadius: "8px",
+            background: mode === "LIVE_AWS"
+              ? "rgba(34,197,94,0.08)"
+              : "rgba(239,68,68,0.08)",
+            border: `1px solid ${mode === "LIVE_AWS" ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+            cursor: "pointer",
+          }}
+          onClick={() => setIsConnectModalOpen(true)}
+          title="Click to configure AWS"
+        >
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              background: mode === "LIVE_AWS" 
-                ? (isDark ? "rgba(16, 185, 129, 0.15)" : "#ecfdf5") 
-                : "var(--aws-orange)",
-              color: mode === "LIVE_AWS" 
-                ? (isDark ? "#34d399" : "#065f46") 
-                : "#ffffff",
-              border: mode === "LIVE_AWS" 
-                ? (isDark ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid #a7f3d0") 
-                : "none",
-              fontWeight: "600"
+              width: "7px", height: "7px", borderRadius: "50%", flexShrink: 0,
+              background: mode === "LIVE_AWS" ? "var(--color-success)" : "var(--color-danger)",
+              boxShadow: mode === "LIVE_AWS"
+                ? "0 0 8px var(--color-success)"
+                : "0 0 8px var(--color-danger)",
+              animation: "pulse 2s infinite",
             }}
-            title="Configure AWS IAM credentials or Role"
+          />
+          <span style={{ fontSize: "0.72rem", fontWeight: "700", color: mode === "LIVE_AWS" ? "var(--color-success)" : "var(--color-danger)", letterSpacing: "0.04em" }}>
+            {mode === "LIVE_AWS" ? "AWS CONNECTED" : "DISCONNECTED"}
+          </span>
+          <span style={{ marginLeft: "auto", fontSize: "0.68rem", color: "var(--text-muted)" }}>
+            {account?.primaryRegion || "ap-south-1"}
+          </span>
+        </div>
+
+        {/* Navigation */}
+        <nav className="sidebar-nav">
+          <div className="sidebar-section-label">Navigation</div>
+          {navItems.map(({ id, label, icon: Icon, badge }) => (
+            <button
+              key={id}
+              className={`sidebar-nav-item ${activeTab === id ? "active" : ""}`}
+              onClick={() => setActiveTab(id)}
+            >
+              <Icon size={16} className="sidebar-nav-icon" strokeWidth={1.8} />
+              <span>{label}</span>
+              {badge !== null && (
+                <span className="sidebar-nav-badge">{badge}</span>
+              )}
+            </button>
+          ))}
+
+          <div className="sidebar-divider" />
+          <div className="sidebar-section-label">Actions</div>
+
+          <button
+            className="sidebar-nav-item"
+            onClick={() => setIsConnectModalOpen(true)}
           >
-            <Cloud size={14} />
-            <span>{mode === "LIVE_AWS" ? "AWS Connected" : "Connect AWS"}</span>
+            <Cloud size={16} className="sidebar-nav-icon" strokeWidth={1.8} />
+            <span>{mode === "LIVE_AWS" ? "AWS Settings" : "Connect AWS"}</span>
           </button>
 
-          {/* Live Telemetry Mode */}
-          <div className="mode-badge glass-panel">
-            {mode === "LIVE_AWS" ? (
-              <>
-                <span className="pulse-dot text-neon-green"></span>
-                <span className="font-semibold" style={{ color: isDark ? "#34d399" : "#059669" }}>
-                  AWS LIVE API
-                </span>
-              </>
-            ) : (
-              <>
-                <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#94a3b8" }}></span>
-                <span className="font-semibold" style={{ color: "#64748b" }}>
-                  DISCONNECTED
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Live Telemetry Streaming Beacon */}
-          <div
-            className="glass-panel"
-            onClick={() => setIsLiveStreaming(!isLiveStreaming)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "4px 10px",
-              borderRadius: "20px",
-              cursor: "pointer",
-              background: isLiveStreaming ? "rgba(16, 185, 129, 0.12)" : "rgba(148, 163, 184, 0.12)",
-              border: isLiveStreaming ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(148, 163, 184, 0.3)"
-            }}
-            title={isLiveStreaming ? "Streaming live telemetry (1s ticker) - Click to pause" : "Streaming paused - Click to resume"}
-          >
-            <span
-              style={{
-                width: "7px",
-                height: "7px",
-                borderRadius: "50%",
-                background: isLiveStreaming ? "#10b981" : "#94a3b8",
-                animation: isLiveStreaming ? "pulse 1.5s infinite" : "none"
-              }}
-            />
-            <span style={{ fontSize: "0.75rem", fontWeight: "700", color: isLiveStreaming ? "#10b981" : "#94a3b8" }}>
-              {isLiveStreaming ? "LIVE STREAM" : "PAUSED"}
-            </span>
-          </div>
-
-          {/* Quick Enable AWS Service Button */}
           <button
-            className="btn btn-primary btn-sm"
+            className="sidebar-nav-item"
             onClick={() => setIsEnableModalOpen(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              background: "linear-gradient(135deg, #10b981, #059669)",
-              color: "#ffffff",
-              border: "none",
-              fontWeight: "700",
-              boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)"
-            }}
-            title="Enable an AWS service on a specific start date"
           >
-            <PlusCircle size={14} />
-            <span>+ Enable Service</span>
+            <PlusCircle size={16} className="sidebar-nav-icon" strokeWidth={1.8} />
+            <span>Enable Service</span>
           </button>
 
-          {/* Currency Switcher */}
-          <div className="currency-toggle glass-panel">
-            <button
-              className={`currency-btn ${currency === "INR" ? "active" : ""}`}
-              onClick={() => setCurrency("INR")}
-              title="Show in Indian Rupees"
-            >
-              ₹ INR
-            </button>
-            <button
-              className={`currency-btn ${currency === "USD" ? "active" : ""}`}
-              onClick={() => setCurrency("USD")}
-              title="Show in US Dollars"
-            >
-              $ USD
-            </button>
-          </div>
-
-          {/* Sync Live AWS Telemetry Button */}
           <button
-            className="btn btn-secondary btn-sm"
+            className="sidebar-nav-item"
             onClick={resetSimulation}
-            title="Refresh live telemetry directly from AWS"
+            title="Refresh live telemetry from AWS"
           >
-            <RotateCcw size={14} />
+            <RotateCcw size={16} className="sidebar-nav-icon" strokeWidth={1.8} />
             <span>Sync AWS</span>
           </button>
+        </nav>
 
-          {/* USER AUTHENTICATION / PROFILE / LOGOUT SECTION */}
-          {isAuthenticated && user && (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div style={{ position: "relative" }} ref={profileMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  aria-expanded={isProfileMenuOpen}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "4px 10px 4px 6px",
-                    borderRadius: "20px",
-                    background: "var(--bg-card)",
-                    border: "1px solid var(--border-subtle)",
-                    cursor: "pointer",
-                    boxShadow: "var(--shadow-sm)",
-                    color: "var(--text-primary)",
-                    transition: "all 0.2s ease"
-                  }}
+        {/* Sidebar Footer — User Card */}
+        {isAuthenticated && user && (
+          <div className="sidebar-footer">
+            <div
+              className="sidebar-user-card"
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              ref={profileRef}
+            >
+              <img
+                src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f97316&color=fff&bold=true`}
+                alt={user.name}
+                className="sidebar-user-avatar"
+              />
+              <div className="sidebar-user-info">
+                <div className="sidebar-user-name">{user.name}</div>
+                <div className="sidebar-user-role">{user.role}</div>
+              </div>
+              <ChevronDown
+                size={14}
+                style={{
+                  color: "var(--text-muted)",
+                  transform: isProfileOpen ? "rotate(180deg)" : "none",
+                  transition: "transform 0.2s ease",
+                  flexShrink: 0,
+                }}
+              />
+
+              {/* Profile dropdown opens upwards */}
+              {isProfileOpen && (
+                <div
+                  className="profile-dropdown"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <img
-                    src={
-                      user.avatar ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=0284c7&color=fff`
-                    }
-                    alt={user.name}
-                    style={{ width: "26px", height: "26px", borderRadius: "50%", objectFit: "cover" }}
-                  />
-                  <span style={{ fontSize: "0.82rem", fontWeight: "600", color: "var(--text-primary)", maxWidth: "110px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {user.name.split(" ")[0]}
-                  </span>
-                  <ChevronDown size={14} style={{ color: "var(--text-muted)", transform: isProfileMenuOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }} />
-                </button>
-
-                {/* User Menu Dropdown (ONLY LOCATION FOR LOGOUT) */}
-                {isProfileMenuOpen && (
-                  <div
-                    className="profile-dropdown"
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      top: "115%",
-                      width: "280px",
-                      maxWidth: "calc(100vw - 32px)",
-                      background: "var(--bg-card)",
-                      borderRadius: "14px",
-                      boxShadow: "var(--shadow-hover)",
-                      border: "1px solid var(--border-card)",
-                      padding: "14px",
-                      zIndex: 9999,
-                      animation: "modalFadeIn 0.18s ease-out"
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {/* User Info Header */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "12px", borderBottom: "1px solid var(--border-subtle)" }}>
-                      <img
-                        src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=0284c7&color=fff`}
-                        alt={user.name}
-                        style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border-subtle)" }}
-                      />
-                      <div style={{ overflow: "hidden", flex: 1 }}>
-                        <div style={{ fontWeight: "700", fontSize: "0.9rem", color: "var(--text-heading)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {user.name}
-                        </div>
-                        <div style={{ fontSize: "0.76rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {user.email || user.phoneNumber}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Role & Security Badges */}
-                    <div style={{ padding: "12px 0", borderBottom: "1px solid var(--border-subtle)" }}>
-                      <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: "700", letterSpacing: "0.05em", marginBottom: "6px" }}>
-                        Role & Security
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px" }}>
-                        <span className="badge badge-neon-green" style={{ fontSize: "0.7rem" }}>
-                          {user.authProvider === "GOOGLE" ? "Gmail Authenticated" : user.authProvider === "PHONE_OTP" ? "Phone OTP Verified" : "Password Authenticated"}
-                        </span>
-                        <span className="badge badge-purple" style={{ fontSize: "0.7rem" }}>
-                          {user.role}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Theme / Appearance Control */}
-                    <div style={{ padding: "12px 0", borderBottom: "1px solid var(--border-subtle)" }}>
-                      <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: "700", letterSpacing: "0.05em", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span>Appearance</span>
-                        <span style={{ textTransform: "capitalize", color: "var(--aws-orange)", fontWeight: "600" }}>{resolvedTheme}</span>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", background: "var(--bg-subtle)", padding: "4px", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
-                        <button
-                          type="button"
-                          onClick={() => setTheme("light")}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "5px",
-                            padding: "6px 8px",
-                            borderRadius: "6px",
-                            border: "none",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            background: theme === "light" ? "var(--bg-card)" : "transparent",
-                            color: theme === "light" ? "var(--aws-orange)" : "var(--text-muted)",
-                            boxShadow: theme === "light" ? "var(--shadow-sm)" : "none",
-                            transition: "all 0.15s ease"
-                          }}
-                          title="Light Mode"
-                        >
-                          <Sun size={13} />
-                          <span>Light</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTheme("dark")}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "5px",
-                            padding: "6px 8px",
-                            borderRadius: "6px",
-                            border: "none",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            background: theme === "dark" ? "var(--bg-card)" : "transparent",
-                            color: theme === "dark" ? "var(--aws-orange)" : "var(--text-muted)",
-                            boxShadow: theme === "dark" ? "var(--shadow-sm)" : "none",
-                            transition: "all 0.15s ease"
-                          }}
-                          title="Dark Mode"
-                        >
-                          <Moon size={13} />
-                          <span>Dark</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTheme("system")}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "5px",
-                            padding: "6px 8px",
-                            borderRadius: "6px",
-                            border: "none",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            background: theme === "system" ? "var(--bg-card)" : "transparent",
-                            color: theme === "system" ? "var(--aws-orange)" : "var(--text-muted)",
-                            boxShadow: theme === "system" ? "var(--shadow-sm)" : "none",
-                            transition: "all 0.15s ease"
-                          }}
-                          title="Follow System Theme"
-                        >
-                          <Monitor size={13} />
-                          <span>Auto</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Sole Logout Button in the Application */}
-                    <div style={{ paddingTop: "10px" }}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          logout();
-                        }}
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "8px",
-                          padding: "9px 12px",
-                          borderRadius: "8px",
-                          border: "1px solid rgba(239, 68, 68, 0.25)",
-                          background: "rgba(239, 68, 68, 0.08)",
-                          color: "#ef4444",
-                          fontSize: "0.84rem",
-                          fontWeight: "700",
-                          cursor: "pointer",
-                          transition: "all 0.15s ease"
-                        }}
-                      >
-                        <LogOut size={15} />
-                        <span>Log Out</span>
-                      </button>
+                  {/* User info */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "11px", paddingBottom: "12px", borderBottom: "1px solid var(--border-subtle)" }}>
+                    <img
+                      src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f97316&color=fff&bold=true`}
+                      alt={user.name}
+                      style={{ width: "38px", height: "38px", borderRadius: "9px", objectFit: "cover", border: "2px solid var(--border-card)" }}
+                    />
+                    <div style={{ overflow: "hidden", flex: 1 }}>
+                      <div style={{ fontWeight: "700", fontSize: "0.88rem", color: "var(--text-heading)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
+                      <div style={{ fontSize: "0.73rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email || user.phoneNumber}</div>
                     </div>
                   </div>
-                )}
-              </div>
+
+                  {/* Badges */}
+                  <div style={{ padding: "11px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      <span className="badge badge-neon-green" style={{ fontSize: "0.68rem" }}>
+                        {user.authProvider === "GOOGLE" ? "Gmail Auth" : user.authProvider === "PHONE_OTP" ? "OTP Verified" : "Password Auth"}
+                      </span>
+                      <span className="badge badge-purple" style={{ fontSize: "0.68rem" }}>
+                        {user.role}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Theme */}
+                  <div style={{ padding: "11px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+                    <div style={{ fontSize: "0.67rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: "700", letterSpacing: "0.07em", marginBottom: "8px" }}>
+                      Appearance
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "5px", background: "var(--bg-base)", padding: "3px", borderRadius: "7px", border: "1px solid var(--border-subtle)" }}>
+                      {[
+                        { key: "light", label: "Light", Icon: Sun },
+                        { key: "dark",  label: "Dark",  Icon: Moon },
+                        { key: "system",label: "Auto",  Icon: Monitor },
+                      ].map(({ key, label, Icon }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setTheme(key)}
+                          style={{
+                            display: "flex", alignItems: "center", justifyContent: "center", gap: "4px",
+                            padding: "6px 4px", borderRadius: "5px", border: "none",
+                            fontSize: "0.72rem", fontWeight: "600", cursor: "pointer",
+                            background: theme === key ? "var(--bg-card)" : "transparent",
+                            color: theme === key ? "var(--brand)" : "var(--text-muted)",
+                            boxShadow: theme === key ? "var(--shadow-sm)" : "none",
+                            transition: "all 0.15s ease",
+                          }}
+                        >
+                          <Icon size={12} />
+                          <span>{label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Logout */}
+                  <div style={{ paddingTop: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={() => { setIsProfileOpen(false); logout(); }}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                        padding: "9px 12px", borderRadius: "8px",
+                        border: "1px solid rgba(239,68,68,0.25)",
+                        background: "rgba(239,68,68,0.08)",
+                        color: "#ef4444",
+                        fontSize: "0.82rem", fontWeight: "700", cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <LogOut size={14} />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
+      </aside>
+
+      {/* ─────────────────────────────────────────
+          TOP BAR
+      ───────────────────────────────────────── */}
+      <header className="topbar">
+        {/* Page title */}
+        <div className="topbar-title">
+          {tabLabels[activeTab] || "Dashboard"}
+          <span>/ CloudOptix AI</span>
         </div>
-      </div>
 
-      {/* Navigation Tabs */}
-      <nav className="nav-tabs-wrapper">
-        <div className="nav-tabs">
-          <button
-            className={`nav-tab ${activeTab === "overview" ? "active" : ""}`}
-            onClick={() => setActiveTab("overview")}
-          >
-            <Activity size={16} />
-            <span>Executive Dashboard</span>
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "resources" ? "active" : ""}`}
-            onClick={() => setActiveTab("resources")}
-          >
-            <Layers size={16} />
-            <span>Active Fleet ({resources.length})</span>
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "ec2" ? "active" : ""}`}
-            onClick={() => setActiveTab("ec2")}
-          >
-            <Server size={16} style={{ color: activeTab === "ec2" ? "#ff9900" : "inherit" }} />
-            <span>EC2 Live Operations</span>
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "s3" ? "active" : ""}`}
-            onClick={() => setActiveTab("s3")}
-          >
-            <Database size={16} style={{ color: activeTab === "s3" ? "#10b981" : "inherit" }} />
-            <span>S3 Storage Operations</span>
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "recommendations" ? "active" : ""}`}
-            onClick={() => setActiveTab("recommendations")}
-          >
-            <Sparkles size={16} />
-            <span>AI Recommendations</span>
-            {pendingRecommendations > 0 && (
-              <span className="tab-badge">{pendingRecommendations}</span>
-            )}
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "forecast" ? "active" : ""}`}
-            onClick={() => setActiveTab("forecast")}
-          >
-            <TrendingUp size={16} />
-            <span>AI Spend Forecast</span>
-          </button>
-
-          <button
-            className={`nav-tab ${activeTab === "security" ? "active" : ""}`}
-            onClick={() => setActiveTab("security")}
-          >
-            <ShieldCheck size={16} />
-            <span>Security & Compliance</span>
-          </button>
+        {/* Live stream toggle */}
+        <div
+          onClick={() => setIsLiveStreaming(!isLiveStreaming)}
+          style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            padding: "5px 11px", borderRadius: "20px", cursor: "pointer",
+            background: isLiveStreaming ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.05)",
+            border: isLiveStreaming ? "1px solid rgba(34,197,94,0.25)" : "1px solid var(--border-subtle)",
+            transition: "all 0.2s ease",
+          }}
+          title={isLiveStreaming ? "Live — click to pause" : "Paused — click to resume"}
+        >
+          <span style={{
+            width: "6px", height: "6px", borderRadius: "50%", flexShrink: 0,
+            background: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)",
+            animation: isLiveStreaming ? "pulse 1.5s infinite" : "none",
+          }} />
+          <span style={{ fontSize: "0.72rem", fontWeight: "700", color: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)", letterSpacing: "0.04em" }}>
+            {isLiveStreaming ? "LIVE" : "PAUSED"}
+          </span>
         </div>
-      </nav>
-    </header>
+
+        {/* Currency toggle */}
+        <div className="currency-toggle">
+          {["INR", "USD"].map((c) => (
+            <button
+              key={c}
+              className={`currency-btn ${currency === c ? "active" : ""}`}
+              onClick={() => setCurrency(c)}
+            >
+              {c === "INR" ? "₹ INR" : "$ USD"}
+            </button>
+          ))}
+        </div>
+
+        {/* Connect AWS button */}
+        <button
+          className="btn btn-sm"
+          onClick={() => setIsConnectModalOpen(true)}
+          style={{
+            background: mode === "LIVE_AWS" ? "var(--color-success-dim)" : "var(--brand)",
+            color: mode === "LIVE_AWS" ? "var(--color-success)" : "#fff",
+            border: mode === "LIVE_AWS" ? "1px solid rgba(34,197,94,0.3)" : "none",
+            fontWeight: "700",
+          }}
+        >
+          <Cloud size={13} />
+          <span>{mode === "LIVE_AWS" ? "AWS Live" : "Connect AWS"}</span>
+        </button>
+
+        {/* Sync button */}
+        <button
+          className="btn btn-secondary btn-sm"
+          onClick={resetSimulation}
+          title="Sync from AWS"
+          style={{ padding: "6px 10px" }}
+        >
+          <RotateCcw size={14} />
+        </button>
+      </header>
+    </>
   );
 };
