@@ -149,12 +149,12 @@ export const ResourceTable = () => {
         </div>
 
         {/* Action Buttons: Enable AWS Service + Live Toggle */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
           <button
             className="btn btn-sm"
             onClick={() => setIsLiveStreaming(!isLiveStreaming)}
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               gap: "6px",
               background: "rgba(255, 255, 255, 0.05)",
@@ -163,7 +163,9 @@ export const ResourceTable = () => {
               cursor: "pointer",
               borderRadius: "8px",
               padding: "6px 12px",
-              fontSize: "0.82rem"
+              fontSize: "0.82rem",
+              whiteSpace: "nowrap",
+              flexShrink: 0
             }}
             title={isLiveStreaming ? "Pause live streaming ticker" : "Resume live streaming ticker"}
           >
@@ -175,11 +177,13 @@ export const ResourceTable = () => {
             className="btn btn-secondary btn-sm"
             onClick={() => setActiveTab("ec2")}
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               gap: "6px",
               borderColor: "rgba(255, 153, 0, 0.4)",
-              color: "#ff9900"
+              color: "#ff9900",
+              whiteSpace: "nowrap",
+              flexShrink: 0
             }}
             title="Open EC2 Live Operations Hub"
           >
@@ -191,7 +195,7 @@ export const ResourceTable = () => {
             className="btn btn-primary btn-sm"
             onClick={() => setIsEnableModalOpen(true)}
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               gap: "6px",
               background: "linear-gradient(135deg, #10b981, #059669)",
@@ -202,11 +206,13 @@ export const ResourceTable = () => {
               padding: "6px 14px",
               fontWeight: "700",
               fontSize: "0.84rem",
-              boxShadow: "0 2px 10px rgba(16, 185, 129, 0.3)"
+              boxShadow: "0 2px 10px rgba(16, 185, 129, 0.3)",
+              whiteSpace: "nowrap",
+              flexShrink: 0
             }}
             title="Enable an AWS service on a specific date to track live"
           >
-            <PlusCircle size={16} />
+            <PlusCircle size={15} />
             <span>+ Enable AWS Service</span>
           </button>
         </div>

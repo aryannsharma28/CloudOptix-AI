@@ -37,7 +37,7 @@ export const CircleScrollTurn = () => {
           fill="none"
         />
         <text
-          fill="#0f172a"
+          fill="currentColor"
           fontSize="8.5"
           fontWeight="700"
           letterSpacing="2.5"

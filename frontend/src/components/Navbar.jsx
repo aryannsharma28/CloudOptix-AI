@@ -18,6 +18,8 @@ import {
   Monitor,
   PlusCircle,
   Database,
+  Menu,
+  X,
 } from "lucide-react";
 
 export const Navbar = () => {
@@ -40,6 +42,7 @@ export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, resolvedTheme, setTheme, isDark } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const profileRef = useRef(null);
 
   useEffect(() => {
@@ -76,10 +79,18 @@ export const Navbar = () => {
 
   return (
     <>
+      {/* Mobile backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* ─────────────────────────────────────────
           SIDEBAR
       ───────────────────────────────────────── */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isMobileMenuOpen ? "sidebar-mobile-open" : ""}`}>
         {/* Logo */}
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">
@@ -134,7 +145,10 @@ export const Navbar = () => {
             <button
               key={id}
               className={`sidebar-nav-item ${activeTab === id ? "active" : ""}`}
-              onClick={() => setActiveTab(id)}
+              onClick={() => {
+                setActiveTab(id);
+                setIsMobileMenuOpen(false);
+              }}
             >
               <Icon size={16} className="sidebar-nav-icon" strokeWidth={1.8} />
               <span>{label}</span>
@@ -157,10 +171,14 @@ export const Navbar = () => {
 
           <button
             className="sidebar-nav-item"
-            onClick={() => setIsEnableModalOpen(true)}
+            onClick={() => {
+              setIsEnableModalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            style={{ color: "#34d399" }}
           >
-            <PlusCircle size={16} className="sidebar-nav-icon" strokeWidth={1.8} />
-            <span>Enable Service</span>
+            <PlusCircle size={16} className="sidebar-nav-icon" strokeWidth={2} style={{ color: "var(--color-success)" }} />
+            <span style={{ fontWeight: 600 }}>Enable Service</span>
           </button>
 
           <button
@@ -293,113 +311,148 @@ export const Navbar = () => {
           TOP BAR
       ───────────────────────────────────────── */}
       <header className="topbar">
+        {/* Mobile Hamburger toggle */}
+        <button
+          className="topbar-mobile-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle navigation"
+        >
+          {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+
         {/* Page title */}
         <div className="topbar-title">
-          {tabLabels[activeTab] || "Dashboard"}
-          <span style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 400, marginLeft: "6px" }}>
+          <span>{tabLabels[activeTab] || "Dashboard"}</span>
+          <span className="topbar-sub-brand" style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 400, marginLeft: "6px" }}>
             / CloudOptix AI
           </span>
         </div>
 
-        {/* Live stream toggle */}
-        <div
-          onClick={() => setIsLiveStreaming(!isLiveStreaming)}
-          style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            padding: "5px 11px", borderRadius: "20px", cursor: "pointer",
-            background: isLiveStreaming
-              ? (isDark ? "rgba(34,197,94,0.12)" : "rgba(22,163,74,0.08)")
-              : (isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"),
-            border: isLiveStreaming
-              ? `1px solid ${isDark ? "rgba(34,197,94,0.3)" : "rgba(22,163,74,0.25)"}`
-              : `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-            transition: "all 0.2s ease",
-          }}
-          title={isLiveStreaming ? "Live — click to pause" : "Paused — click to resume"}
-        >
-          <span style={{
-            width: "6px", height: "6px", borderRadius: "50%", flexShrink: 0,
-            background: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)",
-            animation: isLiveStreaming ? "pulse 1.5s infinite" : "none",
-          }} />
-          <span style={{
-            fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.04em",
-            color: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)"
-          }}>
-            {isLiveStreaming ? "LIVE" : "PAUSED"}
-          </span>
+        {/* Action Controls Group */}
+        <div className="topbar-actions">
+          {/* Live stream toggle */}
+          <div
+            onClick={() => setIsLiveStreaming(!isLiveStreaming)}
+            style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "5px 11px", borderRadius: "20px", cursor: "pointer",
+              background: isLiveStreaming
+                ? (isDark ? "rgba(34,197,94,0.12)" : "rgba(22,163,74,0.08)")
+                : (isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"),
+              border: isLiveStreaming
+                ? `1px solid ${isDark ? "rgba(34,197,94,0.3)" : "rgba(22,163,74,0.25)"}`
+                : `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
+              transition: "all 0.2s ease",
+            }}
+            title={isLiveStreaming ? "Live — click to pause" : "Paused — click to resume"}
+          >
+            <span style={{
+              width: "6px", height: "6px", borderRadius: "50%", flexShrink: 0,
+              background: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)",
+              animation: isLiveStreaming ? "pulse 1.5s infinite" : "none",
+            }} />
+            <span style={{
+              fontSize: "0.72rem", fontWeight: "700", letterSpacing: "0.04em",
+              color: isLiveStreaming ? "var(--color-success)" : "var(--text-muted)"
+            }}>
+              {isLiveStreaming ? "LIVE" : "PAUSED"}
+            </span>
+          </div>
+
+          {/* Currency toggle */}
+          <div className="currency-toggle">
+            {["INR", "USD"].map((c) => (
+              <button
+                key={c}
+                className={`currency-btn ${currency === c ? "active" : ""}`}
+                onClick={() => setCurrency(c)}
+              >
+                {c === "INR" ? "₹ INR" : "$ USD"}
+              </button>
+            ))}
+          </div>
+
+          {/* ── THEME TOGGLE (Light / Dark) ── */}
+          <button
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: "34px", height: "34px",
+              borderRadius: "8px",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)"}`,
+              background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+              color: isDark ? "#f0f0fa" : "#374151",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = isDark ? "rgba(249,115,22,0.15)" : "rgba(249,115,22,0.10)";
+              e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)";
+              e.currentTarget.style.color = "#f97316";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
+              e.currentTarget.style.borderColor = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
+              e.currentTarget.style.color = isDark ? "#f0f0fa" : "#374151";
+            }}
+          >
+            {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+          </button>
+
+          {/* Connect AWS button */}
+          <button
+            className="btn btn-sm"
+            onClick={() => setIsConnectModalOpen(true)}
+            style={{
+              background: mode === "LIVE_AWS"
+                ? (isDark ? "rgba(34,197,94,0.15)" : "rgba(22,163,74,0.10)")
+                : "var(--brand)",
+              color: mode === "LIVE_AWS" ? "var(--color-success)" : "#fff",
+              border: mode === "LIVE_AWS"
+                ? `1px solid ${isDark ? "rgba(34,197,94,0.3)" : "rgba(22,163,74,0.25)"}`
+                : "none",
+              fontWeight: "700",
+            }}
+          >
+            <Cloud size={13} />
+            <span>{mode === "LIVE_AWS" ? "AWS Live" : "Connect AWS"}</span>
+          </button>
+
+          {/* Quick Enable AWS Service Button */}
+          <button
+            className="btn btn-sm"
+            onClick={() => setIsEnableModalOpen(true)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "linear-gradient(135deg, #10b981, #059669)",
+              color: "#ffffff",
+              border: "none",
+              fontWeight: "700",
+              padding: "6px 12px",
+              boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+              flexShrink: 0,
+              cursor: "pointer",
+            }}
+            title="Enable an AWS service on a specific start date"
+          >
+            <PlusCircle size={14} />
+            <span>+ Enable Service</span>
+          </button>
+
+          {/* Sync button */}
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={resetSimulation}
+            title="Sync from AWS"
+            style={{ padding: "6px 10px" }}
+          >
+            <RotateCcw size={14} />
+          </button>
         </div>
-
-        {/* Currency toggle */}
-        <div className="currency-toggle">
-          {["INR", "USD"].map((c) => (
-            <button
-              key={c}
-              className={`currency-btn ${currency === c ? "active" : ""}`}
-              onClick={() => setCurrency(c)}
-            >
-              {c === "INR" ? "₹ INR" : "$ USD"}
-            </button>
-          ))}
-        </div>
-
-        {/* ── THEME TOGGLE (Light / Dark) ── */}
-        <button
-          onClick={() => setTheme(isDark ? "light" : "dark")}
-          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: "34px", height: "34px",
-            borderRadius: "8px",
-            border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)"}`,
-            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
-            color: isDark ? "#f0f0fa" : "#374151",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            flexShrink: 0,
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = isDark ? "rgba(249,115,22,0.15)" : "rgba(249,115,22,0.10)";
-            e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)";
-            e.currentTarget.style.color = "#f97316";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
-            e.currentTarget.style.borderColor = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
-            e.currentTarget.style.color = isDark ? "#f0f0fa" : "#374151";
-          }}
-        >
-          {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
-        </button>
-
-        {/* Connect AWS button */}
-        <button
-          className="btn btn-sm"
-          onClick={() => setIsConnectModalOpen(true)}
-          style={{
-            background: mode === "LIVE_AWS"
-              ? (isDark ? "rgba(34,197,94,0.15)" : "rgba(22,163,74,0.10)")
-              : "var(--brand)",
-            color: mode === "LIVE_AWS" ? "var(--color-success)" : "#fff",
-            border: mode === "LIVE_AWS"
-              ? `1px solid ${isDark ? "rgba(34,197,94,0.3)" : "rgba(22,163,74,0.25)"}`
-              : "none",
-            fontWeight: "700",
-          }}
-        >
-          <Cloud size={13} />
-          <span>{mode === "LIVE_AWS" ? "AWS Live" : "Connect AWS"}</span>
-        </button>
-
-        {/* Sync button */}
-        <button
-          className="btn btn-secondary btn-sm"
-          onClick={resetSimulation}
-          title="Sync from AWS"
-          style={{ padding: "6px 10px" }}
-        >
-          <RotateCcw size={14} />
-        </button>
       </header>
     </>
   );

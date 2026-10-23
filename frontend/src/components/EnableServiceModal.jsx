@@ -110,8 +110,19 @@ export const EnableServiceModal = () => {
   return (
     <div className="modal-backdrop" onClick={() => setIsEnableModalOpen(false)}>
       <div
-        className="modal-container glass-card"
-        style={{ maxWidth: "640px", padding: "1.75rem", borderRadius: "16px" }}
+        className="modal-card modal-container"
+        style={{
+          maxWidth: "620px",
+          width: "100%",
+          maxHeight: "min(92vh, 760px)",
+          overflowY: "auto",
+          padding: "1.75rem",
+          borderRadius: "16px",
+          boxSizing: "border-box",
+          margin: "auto",
+          display: "flex",
+          flexDirection: "column"
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -373,7 +384,22 @@ export const EnableServiceModal = () => {
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              gap: "10px",
+              marginTop: "1.25rem",
+              paddingTop: "12px",
+              borderTop: "1px solid var(--border-subtle, rgba(255,255,255,0.1))",
+              position: "sticky",
+              bottom: "-1.75rem",
+              background: "var(--bg-card)",
+              zIndex: 10,
+              paddingBottom: "4px"
+            }}
+          >
             <button
               type="button"
               className="btn btn-secondary"
@@ -388,10 +414,12 @@ export const EnableServiceModal = () => {
               style={{
                 background: "linear-gradient(135deg, #10b981, #059669)",
                 color: "#ffffff",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                fontWeight: "700"
+                fontWeight: "700",
+                boxShadow: "0 2px 10px rgba(16, 185, 129, 0.35)",
+                cursor: submitting ? "not-allowed" : "pointer"
               }}
             >
               <Zap size={16} />

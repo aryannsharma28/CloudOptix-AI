@@ -101,18 +101,8 @@ const DashboardContent = () => {
 
       {/* Live sync progress bar */}
       {isSyncing && (
-        <div style={{
-          position: "fixed", top: 0, left: "var(--sidebar-width)", right: 0,
-          height: "2px",
-          background: "linear-gradient(90deg, #f97316, #a855f7, #22c55e, #f97316)",
-          backgroundSize: "200% 100%",
-          animation: "shimmer 1.5s infinite linear",
-          zIndex: 99999, pointerEvents: "none",
-        }} />
+        <div className="sync-shimmer-bar" />
       )}
-      <style>{`
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-      `}</style>
 
       {/* Sidebar + TopBar */}
       <Navbar />

@@ -123,7 +123,7 @@ export const S3LiveTelemetryBanner = () => {
           </div>
 
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
               <h3
                 style={{
                   fontSize: "1.02rem",

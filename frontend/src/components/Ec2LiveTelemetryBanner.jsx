@@ -454,7 +454,7 @@ export const Ec2LiveTelemetryBanner = () => {
             gap: "10px"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.78rem", color: "#cbd5e1" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.78rem", color: "#cbd5e1", flexWrap: "wrap" }}>
             <Sliders size={14} className="text-neon-cyan" />
             <span><strong>Quick EC2 Fleet Actions:</strong></span>
             {instances.slice(0, 3).map((inst) => (
